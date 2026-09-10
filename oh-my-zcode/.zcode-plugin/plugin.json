@@ -2,7 +2,7 @@
   "name": "oh-my-zcode",
   "version": "0.1.0",
   "description": "多智能体编排插件：主 Agent 作为 orchestrator 委派专家子智能体（fixer/designer/librarian/oracle/observer/council + 内置 Explore），随插件附带 deepwork/loop/reflect/interview 编排命令与工作流技能。",
-  "author": { "name": "oh-my-opencode-slim port" },
+  "author": { "name": "oh-my-zcode" },
   "license": "MIT",
   "keywords": ["orchestration", "subagents", "workflow", "port"],
   "agents": "agents",

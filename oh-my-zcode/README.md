@@ -27,7 +27,7 @@
 前置条件：系统 PATH 中有可用的 `node`（SessionStart hook 依赖）。
 
 1. 打开 ZCode → 设置 → 插件
-2. 点右上角 **创建 → 添加插件市场**，选择本仓库的 `zcode/` 目录（含 `marketplace.json`）
+2. 点右上角 **创建 → 添加插件市场**，选择本仓库根目录（含 `marketplace.json`）
 3. 在 **个人** 分段找到 oh-my-zcode，点 **安装**
 4. **新建会话** 生效（子智能体/hook 定义不热更新）
 
@@ -64,7 +64,7 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 | codemap skill（分层 codemap.md 生成） | 改用 ZCode 内置仓库 Wiki（UI 生成、自动刷新；Agent 可读 `~/.zcode/v2/repo-wiki/<hash>/wiki.json`） |
 | 模型回退链 / 并发上限 / multiplexer / companion / TUI preset / 缓存安全注入体系 | 不适用（宿主能力不同） |
 
-详见 `docs/zcode-port.md`。
+详见仓库根目录的 `docs/zcode-port.md`。
 
 ## 已知限制
 

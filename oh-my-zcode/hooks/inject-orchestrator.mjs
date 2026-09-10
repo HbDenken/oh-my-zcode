@@ -23,28 +23,26 @@ try {
   const protocolPath = join(pluginRoot, 'hooks', 'orchestrator-protocol.md');
   let protocol = readFileSync(protocolPath, 'utf8');
 
-  // stdout 上限 32768 字节，超限则截断（保留头部完整段落，尾部给出说明）。
-  const output = {
-    hookSpecificOutput: {
-      hookEventName: 'SessionStart',
-      additionalContext: protocol,
-    },
-  };
-  let payload = JSON.stringify(output);
-  if (Buffer.byteLength(payload, 'utf8') > MAX_OUTPUT_BYTES) {
-    while (
-      Buffer.byteLength(payload, 'utf8') > MAX_OUTPUT_BYTES - 200 &&
-      protocol.length > 0
-    ) {
-      protocol = protocol.slice(0, Math.floor(protocol.length * 0.9));
-    }
-    protocol += '\n\n[protocol truncated for hook output limit]';
-    payload = JSON.stringify({
+  // stdout 上限 32768 字节，超限则截断（每轮重新序列化再测，避免对陈旧 payload 判断）。
+  const makePayload = (text) =>
+    JSON.stringify({
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
-        additionalContext: protocol,
+        additionalContext: text,
       },
     });
+  let payload = makePayload(protocol);
+  if (Buffer.byteLength(payload, 'utf8') > MAX_OUTPUT_BYTES) {
+    do {
+      protocol = protocol.slice(0, Math.floor(protocol.length * 0.9));
+      payload = makePayload(protocol);
+    } while (
+      Buffer.byteLength(payload, 'utf8') > MAX_OUTPUT_BYTES - 200 &&
+      protocol.length > 0
+    );
+    payload = makePayload(
+      `${protocol}\n\n[protocol truncated for hook output limit]`,
+    );
   }
 
   process.stdout.write(payload);
