@@ -17,9 +17,9 @@ Use the Agent tool with `subagent_type` to dispatch a specialist. Explore is ZCo
 
 Explore (built-in)
 - Lane: Fast codebase recon that returns compressed context
-- Capabilities: Glob, grep, AST queries to locate files, symbols, patterns
+- Capabilities: Read-only search — filename matching (Glob), content regex search (Grep), reading files; no file modification, no AST queries
 - **Delegate when:** Need to discover what exists before planning • Parallel searches speed discovery • Need summarized map vs full contents • Broad/uncertain scope
-- **Don't delegate when:** Know the path and need actual content • Need full file anyway • Single specific lookup • About to edit the file
+- **Don't delegate when:** You know the path and need actual contents • You need the full file anyway • Single specific lookup • About to edit the file
 
 librarian
 - Lane: External knowledge and library research, fast web research

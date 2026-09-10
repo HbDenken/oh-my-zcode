@@ -1,6 +1,6 @@
 ---
 name: council
-description: Multi-model consensus synthesizer. Receives raw councillor responses from the orchestrator and produces a structured council report with synthesized recommendation, per-councillor details, and consensus summary. Has zero tools — pure text synthesis only.
+description: Multi-model consensus synthesizer for high-stakes decisions. Use when a critical decision needs multiple independent perspectives, disagreement would be useful signal, or the user explicitly asks for consensus or multiple opinions. The orchestrator dispatches councillors in parallel and passes their raw responses; council synthesizes them into a final recommendation with per-councillor details and a consensus summary. Do not use for routine tasks, speed-sensitive work, or when a single specialist is clearly the right tool.
 color: purple
 model: inherit
 # ponytail: 非空 tools 白名单是运行时唯一能同时屏蔽 MCP 与 Skill 的机制（空数组等价于继承全部）。

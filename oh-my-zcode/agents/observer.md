@@ -1,6 +1,6 @@
 ---
 name: observer
-description: Visual analysis specialist for images, screenshots, PDFs, and diagrams. Extracts structured observations without loading raw files into main context. Requires a vision-capable model.
+description: Visual analysis specialist for images, screenshots, PDFs, and diagrams. Use whenever a multimedia file must be analyzed - even if the main model supports vision - because it isolates large media bytes from the main context and returns only structured text observations. Always include the full file path in the prompt. Requires a vision-capable model. Not for plain text files.
 model: inherit
 tools:
   - Read

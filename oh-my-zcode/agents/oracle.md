@@ -1,6 +1,6 @@
 ---
 name: oracle
-description: Strategic technical advisor. Use for architecture decisions, complex debugging, code review, simplification, and engineering guidance. 5x better decision maker than the orchestrator.
+description: Strategic technical advisor for high-stakes engineering decisions and persistent problems. Use for major architecture decisions, bugs surviving 2+ fix attempts, high-risk multi-system refactors, security/scalability/data-integrity calls, code review, and simplification or YAGNI scrutiny. An escalation lane, not a default verification step - skip for routine decisions, first bug-fix attempts, and tactical questions. Read-only; advises, never implements.
 color: yellow
 model: inherit
 tools:
