@@ -1,0 +1,12 @@
+{
+  "name": "oh-my-zcode-market",
+  "description": "oh-my-zcode 多智能体编排插件的本地市场（oh-my-opencode-slim 的 ZCode 移植版）",
+  "plugins": [
+    {
+      "name": "oh-my-zcode",
+      "source": "./oh-my-zcode",
+      "category": "开发者工具",
+      "tags": ["orchestration", "subagents", "workflow"]
+    }
+  ]
+}
