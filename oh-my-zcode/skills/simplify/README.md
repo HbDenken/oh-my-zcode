@@ -15,5 +15,5 @@ Adapted from Addy Osmani's
 
 ## Installation
 
-Bundled with `oh-my-zcode` and installed automatically when bundled
-skills are enabled via the installer.
+Bundled with `oh-my-zcode` and enabled automatically when the plugin is
+installed from the marketplace.
