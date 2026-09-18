@@ -2,7 +2,7 @@
 
 ZCode 插件市场仓库，包含 **oh-my-zcode** —— 多智能体编排插件（[oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim) 的 ZCode 移植版）。
 
-主 Agent 作为 orchestrator，通过 SessionStart hook 注入编排协议，把非平凡工作委派给专家子智能体：fixer（有界执行）、designer（UI/UX）、librarian（文档调研）、oracle（架构顾问）、observer（视觉分析）、council（多模型共识）+ ZCode 内置 Explore。
+主 Agent 作为 orchestrator，通过 SessionStart hook 注入编排协议，把非平凡工作委派给专家子智能体：fixer（有界执行）、designer（UI/UX）、librarian（文档调研）、oracle（战略顾问/疑难调试）、observer（视觉分析）、council（多模型共识）+ ZCode 内置 Explore。
 
 ## 仓库结构
 
