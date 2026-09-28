@@ -8,7 +8,7 @@
 .
 ├── marketplace.json              # 本地市场清单（添加市场时指向本仓库根目录）
 └── oh-my-zcode/                  # 插件根
-    ├── .zcode-plugin/plugin.json # 清单：agents/skills/commands/mcpServers
+    ├── .zcode-plugin/plugin.json # 清单：agents/skills/commands/hooks/mcpServers
     ├── .mcp.json                 # context7 + gh_grep（http 远程 MCP）
     ├── agents/                   # 6 个自定义子智能体（fixer/designer/librarian/oracle/observer/council）
     ├── skills/                   # 8 个技能

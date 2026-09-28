@@ -5,7 +5,12 @@
     {
       "name": "oh-my-zcode",
       "source": "./oh-my-zcode",
-      "category": "开发者工具",
+      "version": "0.1.1",
+      "description": "多智能体编排插件：主 Agent 作为 orchestrator 委派专家子智能体（fixer/designer/librarian/oracle/observer/council + 内置 Explore）",
+      "displayName": "oh-my-zcode",
+      "displayName_i18n": { "zh-CN": "oh-my-zcode 多智能体编排" },
+      "description_i18n": { "zh-CN": "主 Agent 作为 orchestrator 委派专家子智能体（fixer/designer/librarian/oracle/observer/council + 内置 Explore），含 deepwork/loop/reflect/interview 编排命令与工作流技能" },
+      "category": "developer-tools",
       "tags": ["orchestration", "subagents", "workflow"]
     }
   ]

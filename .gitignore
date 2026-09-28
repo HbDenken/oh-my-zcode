@@ -1,0 +1,4 @@
+# ZCode 运行时数据（含 credentials.json 与本地 CA 私钥，严禁入库）
+.zcode/
+
+node_modules/

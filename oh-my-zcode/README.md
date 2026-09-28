@@ -70,5 +70,5 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 
 - 插件子智能体在 设置 → 子智能体 中只读；覆盖/停用 = 复制到 `~/.zcode/agents/` 后修改
 - 子智能体不能再派子智能体（ZCode 运行时强制），编排只在主 Agent 层
-- 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能（除非写全名）；本插件 agents 均按此约束设计
+- 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能（除非写全名）；librarian 已用全名接入 WebSearch 与 context7/gh_grep，其余 agents 按最小工具集设计
 - `context7` MCP 免 key 可用（有速率限制）；如需 API key，需后续版本通过自建转发代理注入鉴权头

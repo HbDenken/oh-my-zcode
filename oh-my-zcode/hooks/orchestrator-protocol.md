@@ -17,7 +17,7 @@ Use the Agent tool with `subagent_type` to dispatch a specialist. Explore is ZCo
 
 Explore (built-in)
 - Lane: Fast codebase recon that returns compressed context
-- Capabilities: Read-only search — filename matching (Glob), content regex search (Grep), reading files; no file modification, no AST queries
+- Capabilities: Read-only recon — reads files (Read), searches via Bash (ripgrep/find), light web checks (WebFetch/WebSearch), tracks progress (TodoWrite); no file modification, no Edit/Write tools
 - **Delegate when:** Need to discover what exists before planning • Parallel searches speed discovery • Need summarized map vs full contents • Broad/uncertain scope
 - **Don't delegate when:** You know the path and need actual contents • You need the full file anyway • Single specific lookup • About to edit the file
 
@@ -72,6 +72,7 @@ observer
 - **Delegate when:** Need to analyze a multimedia file • Extract information
 - **Don't delegate when:** Plain text files that Read can handle directly • Files that need editing afterward (need literal content from Read)
 - **Rule of thumb:** Even if your model supports vision, delegate visual analysis to observer - it isolates large image/PDF bytes from your context window, returning only concise structured text. Need exact file contents for routing? → Read only the minimal context yourself.
+- **Handoff note:** For rendered-deliverable acceptance (pptx/docx/xlsx/pdf/poster/chart page images), use ZCode's built-in visual-judge subagents (provided by the documents/pdf/presentations/spreadsheets plugins) instead of observer. Observer is for general-purpose image/screenshot/diagram analysis.
 - **IMPORTANT:** When delegating to observer, always include the **full file path** in the prompt so it can read the file. Example: "Analyze the screenshot at /path/to/file.png - describe the UI elements and error messages."
 </Subagents>
 
