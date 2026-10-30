@@ -5,7 +5,7 @@
     {
       "name": "oh-my-zcode",
       "source": "./oh-my-zcode",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "多智能体编排插件：主 Agent 作为 orchestrator 委派专家子智能体（fixer/designer/librarian/oracle/observer/council + 内置 Explore）",
       "displayName": "oh-my-zcode",
       "displayName_i18n": { "zh-CN": "oh-my-zcode 多智能体编排" },
