@@ -60,7 +60,7 @@ Clarify the idea through short rounds of at most 2 questions at a time.
 When useful, each question may include 2 to 4 answer options and one suggested option.
 Be practical. Focus on the highest-ambiguity and highest-risk decisions first.
 
-After each round, update the specification document at `interview/<title>.md` with the Write tool so the user can review it at any time (the title comes from the `title` field below; keep it stable once chosen).
+After each round, update the specification document at `interview/<title>.md` with the Write tool so the user can review it at any time (keep the title stable once chosen).
 
 Ask the questions in your reply text (numbered, with options and a suggested option), and wait for the user's answers before the next round.
 

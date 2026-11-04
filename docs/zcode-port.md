@@ -28,7 +28,8 @@
 | task() 后台子代理 + Background Job Board + wake scheduler | 原生后台子智能体（run_in_background，跑完自动回主对话） |
 | task_result / task_status | 后台完成通知自动回灌；不主动轮询 |
 | task_cancel | TaskStop(task_id) |
-| task_message / task_revive / wait_for_user | 放弃；协议纪律替代 |
+| task_message / task_revive | 原生 `SendMessage`（`delivery: queued / steered / resumed_background`） |
+| wait_for_user | 放弃；协议纪律替代 |
 | per-agent 权限塑形（permission map） | agents/*.md frontmatter `tools` 白名单（空数组＝继承全部，故零工具用非空白名单） |
 | skill 可见性过滤 | 天然近似：主 Agent 全量技能；子智能体自定义 tools 后自动失去技能 |
 | council 动态席位（council-agents.ts） | 静态 council 合成器；多模型意见由主 Agent 并行派任意子智能体取得后传给 council |
@@ -44,7 +45,7 @@
 
 - `@explorer` → `Explore 子智能体`；`@fixer/@designer/@librarian/@oracle/@observer/@council` → 去 @ 同名子智能体
 - `task(...)` → `Agent(run_in_background:true, subagent_type:...)`；`task_result/task_status` → 后台完成通知
-- `wait_for_user` / `task_message` / `task_revive` 段落删除或改为“结束回合等待”
+- `wait_for_user` 段落删除或改为“结束回合等待”；`task_message` / `task_revive` 改为 `SendMessage`
 - `OpenCode` → `ZCode`；`oh-my-opencode-slim` → `oh-my-zcode`
 - 状态目录 `.opencode/loop-history`、`.slim/deepwork` → `.oh-my-zcode/...`
 - OpenCode 专属路径/SQLite → ZCode 等价或删除

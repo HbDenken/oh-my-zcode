@@ -142,5 +142,3 @@ Rewrite the progress file as a tombstone of at most 15 lines: first line
 `status: completed`, then the final outcome, pointers to key deliverables,
 the remaining known issues, and the date. Finish with final validation and a
 concise summary.
-
-</content>

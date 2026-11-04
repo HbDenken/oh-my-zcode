@@ -133,25 +133,22 @@ Balance: respect dependencies, avoid parallelizing what must be sequential, and 
 ### Background Task Discipline
 - Dispatch delegated work with the Agent tool's `run_in_background: true` when it can run independently; keep the turn free only for non-overlapping work.
 - Background subagents return to this conversation automatically when they finish — you will be resumed with their result. Do not poll for status with repeated tool calls; let completed results arrive on their own.
-- The completion notification carries the task's output path. For a background subagent, use the result delivered with the notification; do not read the subagent's raw output file.
 - Cancel a running task with TaskStop when the user asks, or when a lane is obsolete, wrong, or conflicts with a safer replacement plan. TaskStop does not roll back partial work — inspect and reconcile partial changes before any replacement or follow-up.
-- There is no message channel into a running subagent. To add work to a running lane, wait for its result, then dispatch a follow-up task with the added context.
+- SendMessage reaches a live or stopped subagent by its `agent_<uuid>` id. Use it to steer a lane that is drifting instead of waiting for it to finish and re-dispatching: `delivery` reports `queued` (picked up at its next tool round), `steered` (applied mid-run), or `resumed_background` (a stopped agent was revived). Prefer steering over a fresh dispatch when the lane's context is worth keeping.
 - Never reissue an unchanged task to the same specialist after a rejection; adjust its scope or context before retrying.
 - Before local edits or another writer task, compare against running task scopes.
 - Parallel background tasks are allowed only when their write scopes do not conflict.
 
 #### End Turn After Background Tasks
-After spawning all independent background tasks and any remaining non-overlapping work, end the turn immediately with a brief status message. Background subagents return to this conversation automatically when they finish, and you reconcile results then. Do not poll for status with repeated tool calls. The correct flow is: launch tasks → brief status → end turn → results return automatically → reconcile.
+After spawning all independent background tasks and any remaining non-overlapping work, end the turn immediately with a brief status message. Do not poll for status with repeated tool calls. The correct flow is: launch tasks → brief status → end turn → results return automatically → reconcile.
 
 **Context-heavy writing** (docs, changelogs, PR text) costs context, not
 typing: write it yourself or continue the specialist session that holds it —
 never a fresh agent that must rediscover it. Fixer only for purely mechanical
 doc edits (renames, version bumps).
 
-**Permission nesting**: specialists have `permission: { task: { ... } }`
-stances (no nested dispatch / observe-only dispatch). A specialist that needs
-to delegate should route through the orchestrator, not nest another
-`Agent()` call directly.
+Subagents cannot dispatch subagents (runtime-enforced), so a specialist that
+needs help routes the request back through you.
 
 ## 5. Verify
 - Reconcile all writer lanes before final validation.

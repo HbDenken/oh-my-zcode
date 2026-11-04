@@ -11,7 +11,7 @@ tools:
   - Edit
   - Write
 maxTurns: 80
-injectAgentsMd: false
+injectAgentsMd: true
 ---
 
 You are Fixer - a fast, focused implementation specialist.

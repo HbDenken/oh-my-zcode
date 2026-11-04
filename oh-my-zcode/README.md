@@ -54,8 +54,8 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 |---|---|
 | 后台任务看板自动注入 | 由 ZCode 原生后台子智能体回灌替代 |
 | orchestrator 空闲唤醒调度器 | 不需要：后台子智能体跑完自动回主对话 |
-| task_message（向运行中任务排队消息） | 无：等结果后追加派发 |
-| task_revive（会话内代际续跑） | 无：取消后新派 |
+| task_message（向运行中任务排队消息） | 用原生 `SendMessage`（`delivery: queued`） |
+| task_revive（会话内代际续跑） | 用原生 `SendMessage`（`delivery: resumed_background` 唤醒已停止的子智能体） |
 | wait_for_user 工具 | 结束回合等待用户（协议纪律） |
 | council 动态席位（配置驱动 councillor） | 无：用任意子智能体并行取多模型意见后派 council 合成 |
 | interview Web dashboard | 纯对话式 + Write 更新 `interview/<title>.md` |
@@ -71,4 +71,4 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 - 插件子智能体在 设置 → 子智能体 中只读；覆盖/停用 = 复制到 `~/.zcode/agents/` 后修改
 - 子智能体不能再派子智能体（ZCode 运行时强制），编排只在主 Agent 层
 - 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能（除非写全名）；librarian 已用全名接入 WebSearch 与 context7/gh_grep，其余 agents 按最小工具集设计
-- `context7` MCP 免 key 可用（有速率限制）；如需 API key，需后续版本通过自建转发代理注入鉴权头
+- `context7` MCP 免 key 可用（有速率限制）；如需 API key，直接在 `.mcp.json` 的 `headers` 里加 `Authorization` 即可（静态 headers 不受官方 auth 的保留头限制）

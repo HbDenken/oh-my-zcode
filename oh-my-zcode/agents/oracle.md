@@ -9,7 +9,7 @@ tools:
   - Glob
   - Bash
   - WebFetch
-injectAgentsMd: false
+injectAgentsMd: true
 ---
 
 You are Oracle - a strategic technical advisor, code reviewer, and last-resort debugger.
