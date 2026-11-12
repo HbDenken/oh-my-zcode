@@ -23,8 +23,8 @@ ZCode Desktop owns worktrees. A lane is a task, not a `git worktree` command.
 The CLI exposes no worktree tool and `Agent` has no cwd parameter: a dispatched subagent does not enter the lane. Prefer same-checkout lanes with disjoint write scopes. When the user explicitly wants a worktree lane:
 
 1. Confirm the repo is clean enough and inspect `git worktree list`.
-2. Add `.zcode/worktrees/` to `.gitignore` before creating lanes inside the repo.
-3. `git worktree add .zcode/worktrees/<slug> -b <slug> <base>` after explicit confirmation.
+2. Put lanes in `.oh-my-zcode/worktrees/<slug>` and add that path to `.gitignore`. Do not use `.zcode/`: that name is ZCode's own runtime data directory, and lanes there are easily confused with tool state.
+3. `git worktree add .oh-my-zcode/worktrees/<slug> -b <slug> <base>` after explicit confirmation.
 4. Give every subagent the absolute lane path and require all edits, builds and tests there; verify the files changed in the lane, not the main checkout.
 5. Remove the lane only after it is merged or archived and the user confirms.
 
