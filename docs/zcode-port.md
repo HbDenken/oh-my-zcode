@@ -31,7 +31,7 @@
 | task_message / task_revive | 原生 `SendMessage`（`delivery: queued / steered / resumed_background`） |
 | wait_for_user | 放弃；协议纪律替代 |
 | per-agent 权限塑形（permission map） | agents/*.md frontmatter `tools` 白名单（空数组＝继承全部，故零工具用非空白名单） |
-| skill 可见性过滤 | 天然近似：主 Agent 全量技能；子智能体自定义 tools 后自动失去技能 |
+| skill 可见性过滤 | 子智能体自定义 `tools` 后失去全部技能；再用 frontmatter `skills: [name]` 显式放行（designer 已放行官方 `design` 技能） |
 | council 动态席位（council-agents.ts） | 静态 council 合成器；多模型意见由主 Agent 并行派任意子智能体取得后传给 council |
 | /loop /deepwork /reflect /interview 运行时命令 hook | commands/*.md（$ARGUMENTS 模板，无运行时 handler） |
 | interview Web dashboard/HTTP server/事件监听 | 纯对话式：每轮 Write 更新 `interview/<title>.md` |
@@ -39,6 +39,8 @@
 | context7 / gh_grep MCP 装配 | `.mcp.json`（键名自动命名空间 `plugin:oh-my-zcode:<name>`） |
 | smartfetch / ast-grep 工具 | 未移植（ZCode 原生 WebFetch/Grep 覆盖主干；后续可包 stdio MCP） |
 | codemap skill | 改用 ZCode 内置仓库 Wiki |
+| worktree 并行车道（OMO 手工协议） | Desktop 原生 worktree 任务（composer 开关 / fork-to-worktree，会话 cwd 即车道）；CLI 无 worktree 工具，回退手工 `git worktree` + 绝对路径 |
+| design 能力（HTML 设计稿/原型/deck） | 接入 ZCode 官方 `design` 插件：designer 加载 `design` 技能，按其 `design-system/<name>.md` 与 `design-lint.mjs` 门禁交付 |
 | multiplexer / companion / TUI / 模型回退链 / 缓存安全注入 | 不适用 |
 
 ## 改写规则（从 src/ 移植内容时统一执行）
@@ -49,6 +51,14 @@
 - `OpenCode` → `ZCode`；`oh-my-opencode-slim` → `oh-my-zcode`
 - 状态目录 `.opencode/loop-history`、`.slim/deepwork` → `.oh-my-zcode/...`
 - OpenCode 专属路径/SQLite → ZCode 等价或删除
+- 宿主能力不可用时不要照搬：动态 workflow 的 `isolation: "worktree"` 在 ZCode 会抛 `not implemented yet`，禁止写入文档或脚本
+
+## 宿主能力边界（实测）
+
+- **Worktree**：Desktop 原生（`EnterWorktree`/`ExitWorktree`、`worktreeCwd` 能力协商、`worktree_created` 时间线、`fork-to-worktree`、任务组）；托管目录在数据目录的 `.zcode/worktrees/<4位hex>/<name>`，位于仓库外。CLI 0.17.1 无 worktree 工具，且 `Agent` 无 cwd 参数，子智能体不会进入车道。
+- **Design**：官方插件 `design@zcode-plugins-official`（0.7.2）自带 `design-system/<name>.md` 格式、`import-design-system.mjs`、`design-lint.mjs`。lint 退出码：0 通过、1 有违规、2 页面或系统文件读不了（不可当通过）。
+- **子智能体技能**：`tools` 白名单会移除全部技能；`skills: [name]` 是唯一放行方式。
+- **hook 输出上限**：SessionStart 注入 32768 字节，超限由 `inject-orchestrator.mjs` 截断。
 
 ## 验证
 
@@ -63,3 +73,19 @@ echo '' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
 ```
 
 安装后验证：设置→插件→个人分段安装 → 详情页应列出 6 子智能体/8 技能/4 命令/2 MCP/1 hook → 新建会话后 / 面板出现命令与技能。
+
+清单与技能发现（CLI 可跑）：
+
+```bash
+cd <仓库根>
+node "$ZCODE" plugins validate oh-my-zcode     # Plugin manifest is valid
+node "$ZCODE" skills list | grep -E "design:design|oh-my-zcode:worktrees"
+node "$ZCODE" plugins list | grep -A2 "oh-my-zcode@"
+```
+
+设计系统门禁（designer 交付前必跑）：
+
+```bash
+S="<design 技能目录>/scripts/design-lint.mjs"
+node "$S" page.html design-system/<name>.md --spacing   # 0 通过 / 1 违规 / 2 读不了
+```

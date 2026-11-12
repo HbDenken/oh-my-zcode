@@ -10,7 +10,7 @@
 |---|---|---|
 | Explore | 快速代码侦察（只读） | ZCode 内置 |
 | fixer | 有界执行者：接完整规格实现代码 | 本插件 |
-| designer | UI/UX 专家：设计+实现用户界面 | 本插件 |
+| designer | UI/UX 专家：设计+实现用户界面；HTML 设计稿/原型/deck 走官方 `design` 技能 | 本插件 |
 | librarian | 外部知识研究：官方文档、库调研 | 本插件 |
 | oracle | 战略顾问/终极调试：架构决策、疑难调试、方案权衡、代码审查、简化 | 本插件 |
 | observer | 视觉分析：图片/PDF/图表 | 本插件（需视觉模型） |
@@ -19,7 +19,7 @@
 配套组件：
 
 - **命令**：`/loop`（执行-验证循环）、`/deepwork`（重活多阶段编排）、`/reflect`（复盘工作流）、`/interview`（规格访谈）
-- **技能**：simplify、verification-planning、reflect、clonedeps、deepwork、loop-engineering、worktrees、oh-my-zcode（自配置）；仓库架构导读用 ZCode 内置 Wiki（未移植 codemap 流程）
+- **技能**：simplify、verification-planning、reflect、clonedeps、deepwork、loop-engineering、worktrees（并行车道隔离）、oh-my-zcode（自配置）；仓库架构导读用 ZCode 内置 Wiki（未移植 codemap 流程）
 - **MCP**：context7（官方文档查询）、gh_grep（GitHub 代码搜索）
 
 ## 安装
@@ -62,6 +62,8 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 | reflect SQLite 会话考古 | 改为 ZCode 日志（`~/.zcode/cli/log/*.jsonl`）+ 当前会话分析 |
 | smartfetch 工具（二级模型摘要） | 无：ZCode 原生 WebFetch 已覆盖主干 |
 | codemap skill（分层 codemap.md 生成） | 改用 ZCode 内置仓库 Wiki（UI 生成、自动刷新；Agent 可读 `~/.zcode/v2/repo-wiki/<hash>/wiki.json`） |
+| 手工 worktree 并行车道协议 | Desktop 用原生 worktree 任务（composer 开关 / fork-to-worktree，会话 cwd 即车道）；CLI 无 worktree 工具，回退手工 `git worktree` + 绝对路径 |
+| 设计系统检查 | 接入官方 `design` 插件：designer 按其 `design-system/<name>.md` 与 `design-lint.mjs` 交付，lint 退出码 1/2 不得当通过 |
 | 模型回退链 / 并发上限 / multiplexer / companion / TUI preset / 缓存安全注入体系 | 不适用（宿主能力不同） |
 
 详见仓库根目录的 `docs/zcode-port.md`。
@@ -70,5 +72,6 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 
 - 插件子智能体在 设置 → 子智能体 中只读；覆盖/停用 = 复制到 `~/.zcode/agents/` 后修改
 - 子智能体不能再派子智能体（ZCode 运行时强制），编排只在主 Agent 层
-- 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能（除非写全名）；librarian 已用全名接入 WebSearch 与 context7/gh_grep，其余 agents 按最小工具集设计
+- 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能；需要技能时用 frontmatter `skills: [name]` 显式放行（designer 已放行 `design`）。librarian 已用全名接入 WebSearch 与 context7/gh_grep，其余 agents 按最小工具集设计
+- 动态 workflow 的 agent `isolation: "worktree"` 在 ZCode 未实现（运行时抛错），不要使用；worktree 并行只在 Desktop 原生任务里成立
 - `context7` MCP 免 key 可用（有速率限制）；如需 API key，直接在 `.mcp.json` 的 `headers` 里加 `Authorization` 即可（静态 headers 不受官方 auth 的保留头限制）

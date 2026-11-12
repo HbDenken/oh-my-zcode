@@ -1,173 +1,42 @@
 ---
 name: worktrees
-description: Manage Git worktrees as OMO safe isolated coding lanes for complex, risky, or parallel work.
+description: Isolate parallel, risky or experimental coding lanes. Desktop uses native worktree tasks; CLI has no worktree tool and falls back to git worktree with absolute paths.
 ---
 
-# Worktrees Orchestration Protocol
+# Worktrees
 
-The `worktrees` skill provides an opinionated, safe orchestration protocol for
-managing Git worktrees as isolated coding lanes. Its value is giving the Orchestrator a consistent OMO workflow for parallel agents, risky experiments, integration review, and cleanup.
+Use a worktree lane when work needs its own build, touches areas another lane is editing, or may be thrown away. Do not use one for a small single-file change or a docs edit.
 
-## Core Contract
+## Host routing
 
-This is an **orchestrator-only** workflow. Other specialists such as `fixer`
-or `designer` can be assigned tasks inside a worktree lane, but the
-Orchestrator owns lane planning, branch/path selection, file ownership,
-delegation, diff validation, integration, and cleanup.
+### Desktop — native worktree tasks
 
-All worktrees reside under the default path:
+ZCode Desktop owns worktrees. A lane is a task, not a `git worktree` command.
 
-```text
-.oh-my-zcode/worktrees/<slug>/
-```
+1. Start each lane as its own task: enable the worktree toggle in the composer, or fork the conversation to a worktree (`fork to worktree`).
+2. One lane = one task/session. The session cwd is the worktree, so subagents you dispatch inherit it; put absolute paths in cross-session notes.
+3. ZCode owns the managed location (outside the repo), branch, creation card with retry/continue-local, task-row icon, and removal. Do not run `git worktree add/remove`, do not edit `.gitignore`/`.ignore`, and keep no lane registry.
+4. Use fork-to-worktree for an experiment that may be discarded; continue in the local checkout only when worktree creation fails and the user accepts that fallback.
 
-Do not create worktrees as sibling directories of the main repository.
+### CLI — no worktree tool
 
-### State Tracking (`.oh-my-zcode/worktrees.json`)
+The CLI exposes no worktree tool and `Agent` has no cwd parameter: a dispatched subagent does not enter the lane. Prefer same-checkout lanes with disjoint write scopes. When the user explicitly wants a worktree lane:
 
-Use the optional local metadata manifest `.oh-my-zcode/worktrees.json` to maintain
-structural tracking:
+1. Confirm the repo is clean enough and inspect `git worktree list`.
+2. Add `.zcode/worktrees/` to `.gitignore` before creating lanes inside the repo.
+3. `git worktree add .zcode/worktrees/<slug> -b <slug> <base>` after explicit confirmation.
+4. Give every subagent the absolute lane path and require all edits, builds and tests there; verify the files changed in the lane, not the main checkout.
+5. Remove the lane only after it is merged or archived and the user confirms.
 
-```json
-{
-  "version": "1.0.0",
-  "updatedAt": "2026-06-14T00:00:00.000Z",
-  "lanes": [
-    {
-      "slug": "feature-auth-v2",
-      "branch": "omos/feature-auth-v2",
-      "path": ".oh-my-zcode/worktrees/feature-auth-v2",
-      "base": "main",
-      "purpose": "refactor authentication flow to use OAuth2",
-      "owner": "orchestrator",
-      "status": "active",
-      "areas": ["src/auth", "src/config"],
-      "createdAt": "2026-06-14T12:00:00.000Z"
-    }
-  ]
-}
-```
+### Never
 
-If `.oh-my-zcode/worktrees.json` does not exist, create it when initializing a lane,
-and keep it updated as lanes are transitioned, integrated, or pruned. Treat it
-as local workflow metadata by default; ask before making it part of a committed
-project convention.
+- Dynamic-workflow agent `isolation: "worktree"` throws `not implemented yet` — do not use it in a workflow script.
+- Do not hand-create worktrees when Desktop native lanes are available.
+- Do not treat a worktree as a backup: uncommitted lane changes are lost on removal.
 
----
+## Lane contract
 
-## Safety Guidelines
-
-Before executing any Git mutation command, the Orchestrator must observe the
-following guards:
-
-### 1. Pre-Flight Checklist
-- Confirm the current directory is inside a Git repository.
-- Check the current branch, base branch, and dirty/uncommitted state.
-- Inspect the output of `git worktree list` to avoid path or branch conflicts.
-- Ensure the branch name (e.g. `omos/<slug>` or custom project convention) does not already exist locally or on remote.
-- Ensure `.oh-my-zcode/worktrees/` is ignored by Git before creating nested worktrees.
-
-### 2. Mandatory User Confirmation
-You must seek explicit user confirmation before executing:
-- `git worktree add` or `git worktree remove`
-- Branch creation, deletion, or renaming
-- Merges, rebases, or cherry-picks
-- `git prune` or `git worktree prune`
-- Destructive commands (e.g., `git reset --hard`, `git clean`, `git push --force`, or removing a dirty worktree directory).
-
-Never execute destructive commands, delete branches, remove dirty worktrees, or
-clean uncommitted changes without explicit user confirmation for that exact
-operation.
-
-### 3. Ignore File Setup
-
-Before creating or cleaning lanes, inspect existing `.gitignore` and `.ignore`.
-Update the managed block in place when present; otherwise append it. Add only
-the missing exact lines below, never duplicate entries or modify unrelated
-rules. These blocks keep lane artifacts git-local while the `.ignore` allowlist
-keeps them readable to ZCode.
-
-`.gitignore`:
-
-```gitignore
-# BEGIN oh-my-zcode worktrees
-.oh-my-zcode/worktrees/
-.oh-my-zcode/worktrees.json
-# END oh-my-zcode worktrees
-```
-
-`.ignore`:
-
-```ignore
-# BEGIN oh-my-zcode worktrees
-!.oh-my-zcode/
-!.oh-my-zcode/worktrees.json
-!.oh-my-zcode/worktrees/
-!.oh-my-zcode/worktrees/**
-# END oh-my-zcode worktrees
-```
-
----
-
-## Workflow Guide
-
-### Phase 1: Planning & Setup
-1. Identify the task scope and determine a short `<slug>` for the worktree.
-2. Formulate a branch name. Default to `omos/<slug>` unless project/user conventions dictate otherwise.
-3. Validate repository safety. Ask the user for confirmation to initialize the lane.
-4. Before creating the lane, ensure the managed ignore blocks are present using
-   the Ignore File Setup rules above.
-5. Run:
-   ```bash
-   git worktree add -b <branch-name> .oh-my-zcode/worktrees/<slug> <base-commit/branch>
-   ```
-6. Register the metadata in `.oh-my-zcode/worktrees.json`.
-
-### Phase 2: Execution & Delegation
-1. Run all sub-agents with their working directory set strictly to the worktree
-   path, such as `.oh-my-zcode/worktrees/<slug>`.
-2. Do not modify the main checkout for lane work. Keep build, test, and edit
-   operations isolated inside the lane.
-3. Track file or folder ownership per lane to avoid merge conflicts between
-   parallel agents.
-4. Commit progress within the worktree only when the user asked for commits or
-   approved local checkpoint commits.
-
-### Phase 3: Integration & Validation
-Before merging or integrating the worktree branch:
-1. Apply a proportionate final-state verification plan to the changed behavior
-   and its important boundaries. Run checks required by repository or release
-   instructions.
-2. Generate and display a clear diff comparing the worktree branch to the
-   integration base branch.
-3. Ask the user for confirmation to integrate.
-4. Perform the approved integration, such as merge or cherry-pick, from the main
-   checkout or the user-approved integration checkout.
-
-### Phase 4: Cleanup & Pruning
-1. Before cleaning the lane, ensure the managed ignore blocks follow the Ignore
-   File Setup rules above.
-2. Ensure all changes are safely merged or archived.
-3. Confirm the worktree has no uncommitted changes.
-4. Request user approval to remove the worktree.
-5. Safely remove the worktree using:
-   ```bash
-   git worktree remove .oh-my-zcode/worktrees/<slug>
-   ```
-6. Update `.oh-my-zcode/worktrees.json` to mark the lane as `archived` or remove it.
-
----
-
-## When to Use vs. Not Use
-
-### Use When:
-- Performing risky or destructive refactoring that could break the active working environment.
-- Working on parallel tasks/bugfixes that require switching contexts without committing half-finished work.
-- Running independent background agents on separate branches.
-- Conducting exploratory spikes or prototyping that may be discarded.
-- Isolating third-party packages or complex upgrades.
-- Explicitly asked to use worktrees for a specific task.
-
-### Do NOT Use When:
-- Making simple single-file changes, documentation updates, or minor bug fixes.
-- Working in a git repository that is not fully initialized or has complex multi-submodule states not supported easily by worktrees.
+- One writer per lane; write scopes must be disjoint. Agree interfaces before dispatch.
+- The orchestrator owns lane plan, integration and cleanup; specialists only work inside their lane.
+- Verify each lane before integration; show a diff against the base; ask before merge, cherry-pick, removal or any force/reset.
+- Parallel lanes are only useful when their verification is independent; shared generated files or lockfiles are a conflict, not a lane.

@@ -54,6 +54,8 @@ fixer
 - **Delegate when:** For implementation work, think and triage first. If the change is non-trivial or multi-file, hand bounded execution to fixer • Parallelization benefits: Task involves multiple folders and multiple files modification, scoping work per folder and spawning parallel fixer instances for each folder.
 - **Don't delegate when:** Needs discovery/research/decisions • Single small change (<20 lines, one file) • Unclear requirements needing iteration • Explaining to fixer > doing • Tight integration with your current work • Requires design taste, visual hierarchy, interaction polish, responsive layout decisions, animation/motion, component feel, or UI copy/design trade-offs
 - **Rule of thumb:** Headless/mechanical implementation → fixer. User-visible design or polish → designer. If designer already set direction, fixer may only do bounded mechanical follow-up that preserves that design exactly.
+- **Design capability:** For an HTML design draft, interactive prototype, page or HTML deck, designer must load ZCode's official `design` skill and follow it. Do not re-derive design rules in the brief and do not implement the design yourself.
+- **Design-system gate:** When the repo has `design-system/*.md`, require the `design-lint.mjs` command and its exit status in designer's report: exit 1 means violations to fix or justify, exit 2 means the page or system file is unreadable — never a pass.
 
 council
 - Lane: High-stakes multi-model decision support
@@ -129,6 +131,14 @@ Can tasks be split into background specialist work?
 - observer + Explore in parallel (visual analysis + code search)?
 
 Balance: respect dependencies, avoid parallelizing what must be sequential, and avoid overlapping write ownership.
+
+### Parallel Lanes
+Pick the cheapest isolation that contains the risk:
+- **Same checkout, background subagents** (default): disjoint write scopes, no worktree.
+- **Desktop worktree task per lane**: overlapping areas, separate builds, or risky work. One lane = one task started with the composer worktree toggle (or fork-to-worktree); the session cwd is the lane and subagents inherit it. Let ZCode create and remove the worktree; do not hand-run `git worktree`.
+- **CLI worktree fallback**: only when the user asks. `Agent` has no cwd parameter, so a subagent does not enter the lane — keep same-checkout lanes, or pass the absolute lane path and verify edits landed there.
+- Never use dynamic-workflow `isolation: "worktree"`; it throws as unimplemented.
+- You own integration: integrate from the main checkout, review the diff, verify each lane before merge, and remove lanes only after explicit confirmation.
 
 ### Background Task Discipline
 - Dispatch delegated work with the Agent tool's `run_in_background: true` when it can run independently; keep the turn free only for non-overlapping work.
