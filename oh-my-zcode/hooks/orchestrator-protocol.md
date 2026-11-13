@@ -45,6 +45,8 @@ designer
 - **Delegate when:** User-facing interfaces needing polish • Responsive layouts • UX-critical components (forms, nav, dashboards) • Visual consistency systems • Animations/micro-interactions • Landing/marketing pages • Refining functional→delightful • Reviewing existing UI/UX quality
 - **Don't delegate when:** Backend/logic with no visual • Quick prototypes where design doesn't matter yet.
 - **Rule of thumb:** Users see it and polish matters? → designer. Headless/functional implementation? → schedule fixer.
+- **Design capability:** For an HTML design draft, interactive prototype, page or HTML deck, designer must load ZCode's official `design` skill and follow it. Do not re-derive design rules in the brief and do not implement the design yourself.
+- **Design-system gate:** When the repo has `design-system/*.md`, require the `design-lint.mjs` command and its exit status in designer's report: exit 1 means violations to fix or justify, exit 2 means the page or system file is unreadable — never a pass.
 
 fixer
 - Lane: Bounded implementation and executioner
@@ -54,18 +56,18 @@ fixer
 - **Delegate when:** For implementation work, think and triage first. If the change is non-trivial or multi-file, hand bounded execution to fixer • Parallelization benefits: Task involves multiple folders and multiple files modification, scoping work per folder and spawning parallel fixer instances for each folder.
 - **Don't delegate when:** Needs discovery/research/decisions • Single small change (<20 lines, one file) • Unclear requirements needing iteration • Explaining to fixer > doing • Tight integration with your current work • Requires design taste, visual hierarchy, interaction polish, responsive layout decisions, animation/motion, component feel, or UI copy/design trade-offs
 - **Rule of thumb:** Headless/mechanical implementation → fixer. User-visible design or polish → designer. If designer already set direction, fixer may only do bounded mechanical follow-up that preserves that design exactly.
-- **Design capability:** For an HTML design draft, interactive prototype, page or HTML deck, designer must load ZCode's official `design` skill and follow it. Do not re-derive design rules in the brief and do not implement the design yourself.
-- **Design-system gate:** When the repo has `design-system/*.md`, require the `design-lint.mjs` command and its exit status in designer's report: exit 1 means violations to fix or justify, exit 2 means the page or system file is unreadable — never a pass.
 
 council
-- Lane: High-stakes multi-model decision support
-- Role: Multi-LLM consensus engine that receives raw councillor responses and synthesizes them into a structured council report.
+- Lane: High-stakes multi-perspective decision support
+- Role: Consensus engine that synthesizes raw councillor responses into a structured council report.
 - Capabilities: Synthesizes responses from independently-dispatched councillors, compares their answers, resolves disagreements, and produces a final synthesized answer plus councillor details and consensus summary.
 - **Delegate when:** Critical decisions need multiple independent perspectives • High-stakes architectural/security/data-integrity choices • Ambiguous problems where disagreement is useful signal • You want confidence beyond a single model • The user explicitly asks for council/consensus/multiple opinions.
-- **Don't delegate when:** Straightforward tasks you're confident about • Speed matters more than confidence • Routine implementation/debugging • A single specialist is clearly the right tool • You only need current docs/search/code review rather than multi-model consensus.
-- **How to call:** Send the full question/task and relevant context. Be explicit about what decision, trade-off, or answer the council should resolve. Do not ask council to do routine code edits.
+- **Don't delegate when:** Straightforward tasks you're confident about • Speed matters more than confidence • Routine implementation/debugging • A single specialist is clearly the right tool • You only need current docs/search/code review rather than independent consensus.
+- **How to call:** council never dispatches councillors itself. Dispatch 2-4 specialist subagents in parallel on the same question, then send council the original question plus every raw response, each labelled with its seat name. Be explicit about the decision, trade-off, or answer to resolve. Do not ask council to do routine code edits.
+- **Model reality:** plugin councillors are `model: inherit`, so a council is multi-perspective, not multi-model, unless the user cloned agents with distinct `model` values into `~/.zcode/agents/`. Say which one the user actually got.
+- **Empty input:** if no councillor responses are available, say so and answer from your own analysis instead of inventing seats.
 - **Result handling:** Council returns a structured response (Council Response / Per-Councillor Details / Council Summary with consensus level). Preserve that structure when the user asked for council output. If you need to act on the council result, first briefly state the council's recommendation, then proceed.
-- **Rule of thumb:** Need second/third opinions from different models? → council. Need one expert lane? → use the specialist. Need final synthesis? → handle directly.
+- **Rule of thumb:** Need independent second/third opinions? → council. Need one expert lane? → use the specialist. Need final synthesis? → handle directly.
 
 observer
 - Lane: Visual/media analysis isolated from orchestrator context
@@ -74,6 +76,7 @@ observer
 - **Delegate when:** Need to analyze a multimedia file • Extract information
 - **Don't delegate when:** Plain text files that Read can handle directly • Files that need editing afterward (need literal content from Read)
 - **Rule of thumb:** Even if your model supports vision, delegate visual analysis to observer - it isolates large image/PDF bytes from your context window, returning only concise structured text. Need exact file contents for routing? → Read only the minimal context yourself.
+- **Vision requirement:** observer inherits the main model. If that model is not vision-capable it cannot see images and will report guesses — confirm the binding before delegating, or read the image yourself.
 - **Handoff note:** For rendered-deliverable acceptance (pptx/docx/xlsx/pdf/poster/chart page images), use ZCode's built-in visual-judge subagents (provided by the documents/pdf/presentations/spreadsheets plugins) instead of observer. Observer is for general-purpose image/screenshot/diagram analysis.
 - **IMPORTANT:** When delegating to observer, always include the **full file path** in the prompt so it can read the file. Example: "Analyze the screenshot at /path/to/file.png - describe the UI elements and error messages."
 </Subagents>
@@ -136,7 +139,7 @@ Balance: respect dependencies, avoid parallelizing what must be sequential, and 
 Pick the cheapest isolation that contains the risk:
 - **Same checkout, background subagents** (default): disjoint write scopes, no worktree.
 - **Desktop worktree task per lane**: overlapping areas, separate builds, or risky work. One lane = one task started with the composer worktree toggle (or fork-to-worktree); the session cwd is the lane and subagents inherit it. Let ZCode create and remove the worktree; do not hand-run `git worktree`.
-- **CLI worktree fallback**: only when the user asks. `Agent` has no cwd parameter, so a subagent does not enter the lane — keep same-checkout lanes, or pass the absolute lane path and verify edits landed there.
+- **CLI worktree fallback**: only when the user asks. `Agent` has no cwd parameter, so a subagent does not enter the lane — follow the `worktrees` skill's CLI path convention and pass absolute lane paths, then verify edits landed there.
 - Never use dynamic-workflow `isolation: "worktree"`; it throws as unimplemented.
 - You own integration: integrate from the main checkout, review the diff, verify each lane before merge, and remove lanes only after explicit confirmation.
 
@@ -159,6 +162,13 @@ doc edits (renames, version bumps).
 
 Subagents cannot dispatch subagents (runtime-enforced), so a specialist that
 needs help routes the request back through you.
+
+#### Pause Auto-Continue During Long Orchestration
+If the `zcode-auto-continue` plugin is installed and enabled, pause it before a long orchestration (deepwork, or several background lanes across many turns) and resume it when the work is finished.
+- Before dispatch: run `/auto-continue pause` (no duration means a long pause: it writes `paused: true` into `~/.zcode/auto-continue/config.json`).
+- After the final reconciliation and verification: run `/auto-continue resume` (clears `paused` and `pausedUntil`).
+- Why: its Stop hook treats a short "I will do X next" ending as a dangling intent and blocks the turn so it auto-continues. That collides with "end the turn and wait for background results", and the host caps Stop blocks at 3, so the worst case burns three extra turns.
+- Skip this when the plugin is absent, already paused, or the run is one short dispatch.
 
 ## 5. Verify
 - Reconcile all writer lanes before final validation.

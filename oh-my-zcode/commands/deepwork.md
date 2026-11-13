@@ -8,13 +8,10 @@ Use the deepwork skill for this task. Treat it as a heavy coding session.
 
 Task: $ARGUMENTS
 
-Deepwork requirements:
-- before planning, delegation, or creating state, inspect existing `.gitignore` and `.ignore`; add only missing entries without duplicates: `.gitignore` must contain `.oh-my-zcode/deepwork/`, and `.ignore` must contain `!.oh-my-zcode/deepwork/` and `!.oh-my-zcode/deepwork/**`; this keeps state git-local yet readable;
-- create/update a `.oh-my-zcode/deepwork/` progress file;
-- save code/doc deliverables to project paths (e.g. `src/`, `docs/`); reserve `.oh-my-zcode/deepwork/` strictly for progress files;
-- keep the todo list synced with the current phase;
-- draft a phased implementation/delegation plan with a small number of coherent phases based on dependencies and natural delivery boundaries; do not split work merely to reduce review scope;
-- before execution, show the user a compact overview with phase titles/order, delegated specialists and ownership/scope, plus the oracle review total, gate after each phase, and a short reason for each;
-- execute phase by phase with background subagents where useful;
-- background subagents return to this conversation automatically when they finish; reconcile results, validate and update state, then ask the oracle subagent to review every planned phase before continuing;
-- batch material actionable oracle findings, including simplify/readability feedback, into one bounded remediation pass and validate it with focused evidence; only re-review when the remediation changes the reviewed decision/risk or the original concern cannot otherwise be verified.
+The `deepwork` skill owns the pass protocol, state files, gate rules, and completion criteria. Follow it; do not restate it here.
+
+Command-specific notes:
+- apply the skill's ignore-file setup before creating any state (`.gitignore` gets `.oh-my-zcode/deepwork/`; `.ignore` gets the allowlist lines), adding only missing entries;
+- create/update the progress file under `.oh-my-zcode/deepwork/` and show the user a compact pass plan (phase titles, lanes, specialists, gate points) before dispatching;
+- run the oracle gate exactly where the skill requires it: one short design review before dispatch when a pass touches persistent state, money, concurrency, crash recovery, or destructive operations, then one pass-level gate at the end of each pass.
+- if the `zcode-auto-continue` plugin is enabled, run `/auto-continue pause` before the first dispatch and `/auto-continue resume` after the final pass gate passes.

@@ -9,7 +9,7 @@ Use the reflect skill for this request.
 Focus: $ARGUMENTS
 
 Reflect requirements:
-- inspect existing skills, commands, subagents, prompt overrides, MCP permissions, config, and project playbooks before suggesting anything new;
+- inspect existing skills, commands, subagents, MCP servers, config, and project playbooks before suggesting anything new;
 - find repeated workflow patterns from the current conversation, project notes, local memories, logs, or session artifacts that are available and safe to inspect;
 - prefer evidence from repeated recent behavior over speculation;
 - recommend the smallest useful improvement: prompt/config rule, skill, command, custom subagent, MCP/tool permission change, project playbook, or skip;

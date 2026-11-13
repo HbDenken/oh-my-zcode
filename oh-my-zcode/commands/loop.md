@@ -20,13 +20,12 @@ Examples:
   `/loop improve api performance until response under 500ms, try 5 times`
   `/loop refactor auth module, tests must pass, 4 attempts max`
 
-Once all three are clear, run the loop.
+Once all three are clear, run the loop per the `loop-engineering` skill (success types, attempt protocol, and escalation rules live there).
+
+Before the first attempt, keep history out of git: append `.oh-my-zcode/loop-history/` to `.gitignore` if missing, and add `!.oh-my-zcode/`, `!.oh-my-zcode/loop-history/`, `!.oh-my-zcode/loop-history/**` to `.ignore` if missing. Never duplicate existing entries.
 
 User input: $ARGUMENTS
 
-For each attempt:
-1. Create and read a history directory `.oh-my-zcode/loop-history/loop-<timestamp>/` for prior results (create it on the first attempt)
-2. Dispatch the fixer subagent with the goal
-3. When the fixer result returns, verify per the successCriteria
-4. Write the result to `.oh-my-zcode/loop-history/loop-<timestamp>/history-{NNN}.md` (PASS/FAIL + reason)
-5. PASS -> stop. FAIL under maxAttempts -> retry. FAIL at max -> escalate to the user.
+Per attempt: dispatch fixer with the goal, verify against successCriteria, write `.oh-my-zcode/loop-history/loop-<timestamp>/history-001.md` (increment the number each attempt) with PASS/FAIL + reason, then follow the skill's monitor rules (PASS stops, FAIL under max retries, FAIL at max escalates).
+
+If the `zcode-auto-continue` plugin is enabled, run `/auto-continue pause` before the first attempt and `/auto-continue resume` once the loop stops (PASS or max attempts).

@@ -122,13 +122,6 @@ After simplifying, confirm:
 - Project conventions still match
 - No behavior, error handling, or side effects changed
 
-## Guidance for This Repository
-
-- Prefer straightforward TypeScript over clever compression
-- Preserve existing runtime behavior, tests, and hooks
-- Favor explicit names and smaller focused helpers when they improve readability
-- Keep refactors tightly scoped to the task or review feedback
-
 ## Final-state verification
 
 Use a proportionate final-state verification plan for the final diff. Run checks

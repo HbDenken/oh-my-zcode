@@ -139,8 +139,8 @@ Create one folder per source repository under:
 ```
 
 Derive the safe name from the repository owner/name, not from the package name.
-For example, `https://github.com/tanstack/query.git` becomes
-`tanstack__query`. Replace `/` with `__`, strip common `.git` suffixes,
+For example, `https://github.com/TanStack/query.git` becomes
+`TanStack__query`. Replace `/` with `__`, strip common `.git` suffixes,
 and replace other unsafe path characters with `_`.
 
 If multiple packages come from the same monorepo, clone the repository once and
@@ -176,25 +176,27 @@ Write `.oh-my-zcode/clonedeps.json` so future agents know what exists:
   "dependencies": [
     {
       "name": "@tanstack/query-core",
-      "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/tanstack/query.git",
-      "ref": "v1.3.17",
-      "path": ".oh-my-zcode/clonedeps/repos/tanstack__query",
-      "packagePath": "packages/plugin",
+      "resolvedVersion": "5.62.0",
+      "repoUrl": "https://github.com/TanStack/query.git",
+      "ref": "v5.62.0",
+      "path": ".oh-my-zcode/clonedeps/repos/TanStack__query",
+      "packagePath": "packages/query-core",
       "reason": "Plugin API source used by the project"
     },
     {
       "name": "@tanstack/react-query",
-      "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/tanstack/query.git",
-      "ref": "v1.3.17",
-      "path": ".oh-my-zcode/clonedeps/repos/tanstack__query",
-      "packagePath": "packages/sdk/js",
+      "resolvedVersion": "5.62.0",
+      "repoUrl": "https://github.com/TanStack/query.git",
+      "ref": "v5.62.0",
+      "path": ".oh-my-zcode/clonedeps/repos/TanStack__query",
+      "packagePath": "packages/react-query",
       "reason": "Core SDK source used to inspect runtime behavior"
     }
   ]
 }
 ```
+
+版本号、ref 与 packagePath 都是示例值；写入前用 `git ls-remote` 校验真实 tag，不要照抄。
 
 If a clone fails after earlier clones succeeded, still write state for the
 successful clones so future inspection is not misleading.

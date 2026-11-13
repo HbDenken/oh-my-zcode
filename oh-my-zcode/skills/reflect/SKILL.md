@@ -171,10 +171,11 @@ Required behavior:
 Use available evidence in this order:
 
 1. Current conversation and explicit user instructions.
-2. Project-local guidance and memories, such as `AGENTS.md`, `.zcode/`,
-   `.oh-my-zcode/`, notes, checkpoints, task progress files, and docs.
-3. Existing skills, commands, agents, prompt overrides, MCP permissions, and
-   oh-my-zcode configuration.
+2. Project-local guidance and memories, such as `AGENTS.md`,
+   `.oh-my-zcode/` state, notes, checkpoints, task progress files, and docs.
+   (`.zcode/` is ZCode runtime data, not project guidance.)
+3. Existing skills, commands, subagents, MCP servers, and plugin
+   configuration.
 4. Recent ZCode logs or session artifacts if they are available and safe to
    inspect.
 5. External docs only when a proposed workflow depends on a third-party tool or
@@ -203,11 +204,11 @@ it.
 
 Before proposing anything, identify what already exists:
 
-- bundled and user-installed skills;
-- custom agents and their `orchestratorPrompt` guidance;
-- custom commands;
-- prompt overrides and append files;
-- active oh-my-zcode preset, model routing, skills, and MCP permissions;
+- bundled, plugin, and user-installed skills;
+- subagents in `~/.zcode/agents/` and their frontmatter (model, tools, skills);
+- custom commands in `~/.zcode/commands/` and plugin commands;
+- `AGENTS.md` instructions at user and project level;
+- installed plugins, plugin MCP servers, and plugin-provided skills/commands;
 - project playbooks, docs and local workflow notes.
 
 If an existing asset already covers the candidate, recommend extending or using

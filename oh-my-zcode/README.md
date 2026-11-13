@@ -50,23 +50,14 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 
 ## 与 OpenCode 版的功能差异
 
-| OpenCode 版功能 | ZCode 版状态 |
-|---|---|
-| 后台任务看板自动注入 | 由 ZCode 原生后台子智能体回灌替代 |
-| orchestrator 空闲唤醒调度器 | 不需要：后台子智能体跑完自动回主对话 |
-| task_message（向运行中任务排队消息） | 用原生 `SendMessage`（`delivery: queued`） |
-| task_revive（会话内代际续跑） | 用原生 `SendMessage`（`delivery: resumed_background` 唤醒已停止的子智能体） |
-| wait_for_user 工具 | 结束回合等待用户（协议纪律） |
-| council 动态席位（配置驱动 councillor） | 无：用任意子智能体并行取多模型意见后派 council 合成 |
-| interview Web dashboard | 纯对话式 + Write 更新 `interview/<title>.md` |
-| reflect SQLite 会话考古 | 改为 ZCode 日志（`~/.zcode/cli/log/*.jsonl`）+ 当前会话分析 |
-| smartfetch 工具（二级模型摘要） | 无：ZCode 原生 WebFetch 已覆盖主干 |
-| codemap skill（分层 codemap.md 生成） | 改用 ZCode 内置仓库 Wiki（UI 生成、自动刷新；Agent 可读 `~/.zcode/v2/repo-wiki/<hash>/wiki.json`） |
-| 手工 worktree 并行车道协议 | Desktop 用原生 worktree 任务（composer 开关 / fork-to-worktree，会话 cwd 即车道）；CLI 无 worktree 工具，回退手工 `git worktree` + 绝对路径 |
-| 设计系统检查 | 接入官方 `design` 插件：designer 按其 `design-system/<name>.md` 与 `design-lint.mjs` 交付，lint 退出码 1/2 不得当通过 |
-| 模型回退链 / 并发上限 / multiplexer / companion / TUI preset / 缓存安全注入体系 | 不适用（宿主能力不同） |
+权威对照只维护在 `docs/zcode-port.md`（架构映射、宿主能力边界、验证命令）。这里只记结论：
 
-详见仓库根目录的 `docs/zcode-port.md`。
+- 后台任务：ZCode 原生后台子智能体跑完自动回灌，不需要看板与唤醒调度器；取消用 `TaskStop`，插话/续跑用 `SendMessage`。
+- 交互：`wait_for_user` 改为结束回合等待；提问用 `AskUserQuestion`。
+- 能力缺口：无动态 councillor 席位、无 interview dashboard、无 smartfetch；codemap 改用内置仓库 Wiki。
+- council：插件 councillor 是 `model: inherit`，不做用户级模型覆盖时是「多视角」而非「多模型」。
+- worktree：Desktop 用原生 worktree 任务；CLI 无 worktree 工具，按 `skills/worktrees` 的路径约定回退。
+- 设计系统：接入官方 `design` 插件，`design-lint.mjs` 退出码 1/2 不得当通过。
 
 ## 已知限制
 

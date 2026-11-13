@@ -58,11 +58,14 @@
 - **Worktree**：Desktop 原生（`EnterWorktree`/`ExitWorktree`、`worktreeCwd` 能力协商、`worktree_created` 时间线、`fork-to-worktree`、任务组）；托管目录在数据目录的 `.zcode/worktrees/<4位hex>/<name>`，位于仓库外。CLI 0.17.1 无 worktree 工具，且 `Agent` 无 cwd 参数，子智能体不会进入车道。
 - **Design**：官方插件 `design@zcode-plugins-official`（0.7.2）自带 `design-system/<name>.md` 格式、`import-design-system.mjs`、`design-lint.mjs`。lint 退出码：0 通过、1 有违规、2 页面或系统文件读不了（不可当通过）。
 - **子智能体技能**：`tools` 白名单会移除全部技能；`skills: [name]` 是唯一放行方式。
-- **hook 输出上限**：SessionStart 注入 32768 字节，超限由 `inject-orchestrator.mjs` 截断。
+- **hook 输出上限**:SessionStart 注入上限 32768 字节(宿主默认;插件 hooks.json 的单个 hook 条目无法覆盖,只有 source 级配置能改)。当前协议约 17KB,`inject-orchestrator.mjs` 不做截断,超限时向 stderr 报警。
+- **hook 身份过滤**:SessionStart 对子智能体会话同样触发。`inject-orchestrator.mjs` 解析 stdin 的 `agent_type`,命中已知子智能体名单(fixer/designer/librarian/oracle/observer/council/Explore/general-purpose)时直接退出,协议只进主 Agent。
+- **agent 内联规则**:6 个子智能体的 `File Operations Rules` 与协议重复是刻意的——ZCode 没有 include 机制,每个 agent 的 body 就是独立 system prompt。改这条规则要同步改七处。
+- **council 工具面(已核实)**:`RespondToCoordinator` 是 ZCode 内置工具,`tools: [RespondToCoordinator]` 因此只放行协调器回传通道,该子智能体没有文件/搜索/Bash 工具。注意插件 councillor 均为 `model: inherit`,不做用户级模型覆盖时 council 是「多视角」而非「多模型」。
 
 ## 验证
 
-hook 手工断言（可复跑）：
+hook 手工断言（可复跑）。下面是 bash（Git Bash / WSL）；本机 pwsh 没有 `grep`，用后面的 PowerShell 版本。
 
 ```bash
 cd oh-my-zcode
@@ -70,14 +73,25 @@ cd oh-my-zcode
 echo '{"session_id":"t","hook_event_name":"SessionStart"}' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
 # 空 stdin → 容错
 echo '' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
+# 子智能体会话 → 应无输出
+echo '{"agent_type":"fixer"}' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
+```
+
+```powershell
+cd oh-my-zcode
+$env:ZCODE_PLUGIN_ROOT = (Get-Location).Path
+'{"agent_type":"fixer"}' | node hooks/inject-orchestrator.mjs   # 应无输出
+$out = '{"session_id":"t"}' | node hooks/inject-orchestrator.mjs
+[Text.Encoding]::UTF8.GetByteCount($out)                        # 约 17900
 ```
 
 安装后验证：设置→插件→个人分段安装 → 详情页应列出 6 子智能体/8 技能/4 命令/2 MCP/1 hook → 新建会话后 / 面板出现命令与技能。
 
-清单与技能发现（CLI 可跑）：
+清单与技能发现（CLI 可跑，bash）：
 
 ```bash
 cd <仓库根>
+ZCODE="D:/ZCode/resources/glm/zcode.cjs"   # 按本机 zcode CLI 实际路径调整
 node "$ZCODE" plugins validate oh-my-zcode     # Plugin manifest is valid
 node "$ZCODE" skills list | grep -E "design:design|oh-my-zcode:worktrees"
 node "$ZCODE" plugins list | grep -A2 "oh-my-zcode@"

@@ -21,7 +21,7 @@ Use this skill when the user asks about or is likely to benefit from changes to:
 - subagent models, thinking effort (`thoughtLevel`), or tool permissions
 - skills (`~/.zcode/skills/` or plugin skills)
 - slash commands (`~/.zcode/commands/` or plugin commands)
-- MCP servers (`~/.zcode/cli/config.json` → `mcp.servers`, or plugin MCP)
+- MCP servers (user-level config through ZCode settings, or plugin `.mcp.json`)
 - plugin enable/disable state and installed marketplaces
 - recurring workflow friction that could be fixed by a prompt/config change
 
@@ -40,8 +40,8 @@ Concrete configuration surfaces:
 | Plugin `agents/*.md` | Plugin-provided subagents (read-only in Settings; copy to user dir to override) |
 | `~/.zcode/skills/<name>/SKILL.md` | User-level skill |
 | `~/.zcode/commands/<name>.md` | User-level slash command |
-| `~/.zcode/cli/config.json` → `mcp.servers` | User-level MCP servers |
-| `<repo>/.zcode/config.json` → `mcp.servers` | Workspace MCP servers (auto-connected) |
+| ZCode settings (user level) | User-level MCP servers. On 0.17.1 `~/.zcode/cli/config.json` holds only `plugins`/`skills`, so do not assume an `mcp.servers` key. |
+| Plugin `.mcp.json` | Plugin-provided MCP servers, auto-namespaced as `plugin:<plugin>:<server>` |
 | `<repo>/AGENTS.md` / `~/.zcode/AGENTS.md` | Project / user instructions injected into context |
 | Settings → 子智能体 | Create/edit user subagents (writes `~/.zcode/agents/*.md`) |
 | Settings → 插件 | Install/enable/disable plugins and marketplaces |
