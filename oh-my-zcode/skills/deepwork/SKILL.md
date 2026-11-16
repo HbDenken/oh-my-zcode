@@ -128,7 +128,7 @@ log activity.
   lives in git commits and gate verdicts;
 - topic files in `.oh-my-zcode/deepwork/` only for what will be re-read: gate
   verdicts and research. One file per topic; a retry overwrites it. Plans, specs,
-  and docs go to real project paths. Routine lane results stay in the task results;
+  and docs go to real project paths. Routine lane results stay in the subagent completion notices;
 - update state at pass transitions, decisions, and blockers — not after every
   lane.
 

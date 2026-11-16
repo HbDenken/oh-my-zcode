@@ -55,9 +55,10 @@ Tool permission boundaries:
 
 - `tools` empty or `*` → inherits all tools including connected MCP tools.
 - Custom `tools` list → only the listed built-in tools; MCP tools become
-  unavailable unless written as full names (`mcp__<server>__<tool>`), and
+  unavailable unless written as full names (`mcp__<server>__<tool>`, e.g.
+  `mcp__plugin_oh-my-zcode_context7__query-docs`), and
   skills may become unavailable to that subagent.
-- Subagents cannot spawn further subagents (runtime-enforced).
+- Subagents cannot spawn further subagents (stated by the plugin docs; host runtime behaviour unverified).
 - Subagents only see MCP servers connected when the session started.
 
 Common customizations:

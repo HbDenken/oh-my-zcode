@@ -11,7 +11,7 @@ description: Loop engineering. Grill the goal for explicit success criteria, the
 2. Success criteria: "Describe how we know the loop succeeded."
 3. Success type: choose from `test`, `build`, `lint`, `command`, `fileExists`, `oracle`, `observer`, `manual`. For CLI steps provide `successCommand`; for file detection provide `successPath`.
 4. Execute subagent: fixer / designer / Explore / librarian
-5. Verify subagent: oracle / observer / test
+5. Verify: run the success command yourself; for judgement-style criteria dispatch oracle or observer. There is no `test` subagent.
 6. Max attempts (default 3)
 7. Optional context files: which files or directories should be read before execution?
 

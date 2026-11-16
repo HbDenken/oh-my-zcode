@@ -2,11 +2,8 @@
 name: librarian
 description: External documentation and library research. Use for official docs lookup, GitHub examples, understanding library internals, and latest web research on tricky problems. 2x faster web research than the orchestrator.
 color: cyan
-model: inherit
 tools:
   - Read
-  - Grep
-  - Glob
   - WebFetch
   - WebSearch
   # 插件 MCP 全名（非空白名单会屏蔽未列出的 MCP 工具；名字绑定插件安装名 oh-my-zcode）

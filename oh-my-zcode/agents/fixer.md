@@ -2,11 +2,8 @@
 name: fixer
 description: Fast implementation specialist. Receives complete context and task spec, executes code changes efficiently. Use for bounded, well-specified implementation work - not research, design, or decisions.
 color: green
-model: inherit
 tools:
   - Read
-  - Grep
-  - Glob
   - Bash
   - Edit
   - Write

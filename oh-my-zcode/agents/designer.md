@@ -2,11 +2,8 @@
 name: designer
 description: UI/UX design, review, and implementation. Use for styling, responsive design, component architecture, and visual polish. 10x better UI/UX than the orchestrator.
 color: pink
-model: inherit
 tools:
   - Read
-  - Grep
-  - Glob
   - Bash
   - Edit
   - Write

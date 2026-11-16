@@ -22,4 +22,9 @@ SOFTWARE.
 
 Portions of this software are derived from oh-my-opencode-slim
 (https://github.com/alvinunreal/oh-my-opencode-slim), licensed under the MIT
-License, Copyright (c) 2025 the oh-my-opencode-slim authors.
+License. The upstream LICENSE carries "Copyright (c) 2025" without a named
+holder; that notice is retained here as-is.
+
+Portions of the simplify skill are adapted from addyosmani/agent-skills
+(https://github.com/addyosmani/agent-skills), licensed under the MIT License,
+Copyright (c) 2025 Addy Osmani.

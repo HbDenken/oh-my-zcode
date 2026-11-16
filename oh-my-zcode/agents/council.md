@@ -2,7 +2,6 @@
 name: council
 description: Multi-perspective consensus synthesizer for high-stakes decisions. Use when a critical decision needs multiple independent perspectives, disagreement would be useful signal, or the user explicitly asks for consensus or multiple opinions. The orchestrator dispatches councillors in parallel and passes their raw responses; council synthesizes them into a final recommendation with per-councillor details and a consensus summary. Do not use for routine tasks, speed-sensitive work, or when a single specialist is clearly the right tool.
 color: purple
-model: inherit
 tools:
   - RespondToCoordinator
 injectAgentsMd: false

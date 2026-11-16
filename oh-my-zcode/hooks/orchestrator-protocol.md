@@ -17,7 +17,7 @@ Use the Agent tool with `subagent_type` to dispatch a specialist. Explore is ZCo
 
 Explore (built-in)
 - Lane: Fast codebase recon that returns compressed context
-- Capabilities: Read-only recon — reads files (Read), searches via Bash (ripgrep/find), light web checks (WebFetch/WebSearch), tracks progress (TodoWrite); no file modification, no Edit/Write tools
+- Capabilities: Read-only recon — reads files and searches the codebase; never modifies files. Exact tool surface depends on the host build, so do not assume particular search binaries.
 - **Delegate when:** Need to discover what exists before planning • Parallel searches speed discovery • Need summarized map vs full contents • Broad/uncertain scope
 - **Don't delegate when:** You know the path and need actual contents • You need the full file anyway • Single specific lookup • About to edit the file
 
@@ -160,14 +160,14 @@ typing: write it yourself or continue the specialist session that holds it —
 never a fresh agent that must rediscover it. Fixer only for purely mechanical
 doc edits (renames, version bumps).
 
-Subagents cannot dispatch subagents (runtime-enforced), so a specialist that
+Subagents cannot dispatch subagents (assumed, not verified on ZCode), so a specialist that
 needs help routes the request back through you.
 
 #### Pause Auto-Continue During Long Orchestration
 If the `zcode-auto-continue` plugin is installed and enabled, pause it before a long orchestration (deepwork, or several background lanes across many turns) and resume it when the work is finished.
 - Before dispatch: run `/auto-continue pause` (no duration means a long pause: it writes `paused: true` into `~/.zcode/auto-continue/config.json`).
 - After the final reconciliation and verification: run `/auto-continue resume` (clears `paused` and `pausedUntil`).
-- Why: its Stop hook treats a short "I will do X next" ending as a dangling intent and blocks the turn so it auto-continues. That collides with "end the turn and wait for background results", and the host caps Stop blocks at 3, so the worst case burns three extra turns.
+- Why: its Stop hook treats a short "I will do X next" ending as a dangling intent and blocks the turn so it auto-continues. That collides with "end the turn and wait for background results", and the host's stop-block limit is unverified, so the worst case burns extra turns.
 - Skip this when the plugin is absent, already paused, or the run is one short dispatch.
 
 ## 5. Verify

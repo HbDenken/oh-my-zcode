@@ -7,7 +7,7 @@ You are running an interview q&a session for the user inside their repository.
 
 Initial idea: $ARGUMENTS
 
-Goal: Iteratively generate and populate a highly structured Specification document, saved to `interview/<title>.md` in the project (create the `interview/` directory if it does not exist; if $ARGUMENTS names an existing spec file under `interview/`, resume from that document instead of starting over).
+Goal: Iteratively generate and populate a highly structured Specification document, saved to `.oh-my-zcode/interview/<title>.md` in the project (create the `.oh-my-zcode/interview/` directory if it does not exist; if $ARGUMENTS names an existing spec file under `.oh-my-zcode/interview/`, resume from that document instead of starting over).
 
 Your target document MUST be structured strictly using the following 11-section template:
 
@@ -60,7 +60,7 @@ Clarify the idea through short rounds of at most 2 questions at a time.
 When useful, each question may include 2 to 4 answer options and one suggested option.
 Be practical. Focus on the highest-ambiguity and highest-risk decisions first.
 
-After each round, update the specification document at `interview/<title>.md` with the Write tool so the user can review it at any time (keep the title stable once chosen).
+After each round, update the specification document at `.oh-my-zcode/interview/<title>.md` with the Write tool so the user can review it at any time (keep the title stable once chosen).
 
 Ask the questions in your reply text (numbered, with options and a suggested option), and wait for the user's answers before the next round.
 
