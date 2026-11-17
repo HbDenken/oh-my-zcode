@@ -58,7 +58,7 @@
 - **Worktree**：Desktop 原生（`EnterWorktree`/`ExitWorktree`、`worktreeCwd` 能力协商、`worktree_created` 时间线、`fork-to-worktree`、任务组）；托管目录在数据目录的 `.zcode/worktrees/<4位hex>/<name>`，位于仓库外。CLI 0.17.1 无 worktree 工具，且 `Agent` 无 cwd 参数，子智能体不会进入车道。
 - **Design**：官方插件 `design@zcode-plugins-official`（0.7.2）自带 `design-system/<name>.md` 格式、`import-design-system.mjs`、`design-lint.mjs`。lint 退出码：0 通过、1 有违规、2 页面或系统文件读不了（不可当通过）。
 - **子智能体技能**：`tools` 白名单会移除全部技能；`skills: [name]` 是唯一放行方式。真机已验:designer 子会话同时拿到 `Read/Write/Edit/Bash/Skill` 与 `skills: [design]` 放行(技能通过 `Skill` 工具加载)。
-- **hook 输出上限**:SessionStart 注入上限 32768 字节(宿主默认 `hooks:{maxOutputBytes:32768, timeoutMs:60000}`;插件 hooks.json 的单个 hook 条目无法覆盖,只有 source 级配置能改)。当前协议 18376 字节(约 18KB),余量约 14392 字节。`inject-orchestrator.mjs` 不做截断,超限时向 stderr 报警;注入失败时改为输出一行可见告警到 `additionalContext`(stderr 是否展示给用户未实测)。**真机已核**(0.1.6 时点,协议 18314 字节):主会话 rollout 里注入块 18301 字节 + 尾部空白 13 字节,与 `hooks/orchestrator-protocol.md` 逐字节一致,无截断、无告警前缀。
+- **hook 输出上限**:SessionStart 注入上限 32768 字节(宿主默认 `hooks:{maxOutputBytes:32768, timeoutMs:60000}`;插件 hooks.json 的单个 hook 条目无法覆盖,只有 source 级配置能改)。当前协议 18376 字节(约 18KB),余量约 14392 字节。`inject-orchestrator.mjs` 不做截断,超限时向 stderr 报警;注入失败时改为输出一行可见告警到 `additionalContext`(stderr 是否展示给用户未实测)。**真机已核**(0.1.7 时点,协议 18376 字节):新会话注入块里的协议段 18376 字节,与 `hooks/orchestrator-protocol.md` 逐字节一致(SHA256 相同),无截断、无告警前缀。注意宿主会把同一 SessionStart 的多个 hook 输出合并成一条 `SessionStart hook additional context: ` 文本(本插件协议前还有别家 hook 的 `#1`/`#2` 段),注入块总长因此大于协议本体(本机 18898 字节),不要用「总长 = 文件字节数」做断言,要比就比从 `# oh-my-zcode Orchestrator Protocol` 起的协议段。历史取证(0.1.6 时点,协议 18314 字节)当时是单 hook 无包装的 18301 字节 + 13 字节尾部空白。
 - **hook 身份过滤**:SessionStart 对子智能体会话同样触发。宿主把会话 `agentName` 原样作为 `agent_type` 传入(0.17.1 源码 `agent_type: e.agentName`)。本地 DB `model_usage.agent` 实证(5000+ 样本):主会话恒为 `zcode-agent`(main_turn/compact/session_title 一致),子会话一律 `zcode-<类型>`——`zcode-Explore`、`zcode-oracle`、`zcode-oh-my-zcode:designer`,workflow/expert 子会话为 `zcode-workflow`/`zcode-expert`,第三方插件的子智能体同样带该前缀。`inject-orchestrator.mjs` 因此用开放规则「`zcode-` 前缀且非 `zcode-agent` ⇒ 子会话」过滤,覆盖未知插件的子智能体;裸名/空值/非 JSON 按主 Agent 注入(宿主从不发送裸名,未知时注入是安全方向)。已知边界:用户自定义名为 `agent` 的子智能体会话名同为 `zcode-agent`,会被注入协议(仅多读一段文本,不影响其身份)。本地矩阵 10/10 通过;真机已验:designer 子会话(独立 rollout `model-io-sess_subagent_agent_*.jsonl`,`querySource=subagent`)的 system prompt 里没有协议文本。
 - **子智能体加载与工具面(真机已验)**:插件 `agents/` 能被 ZCode 加载,但**要重启 ZCode 才进 agent 列表**(只跑 `plugins update` 不够,启动时缓存 agent 注册表)。子智能体请求不写主会话 rollout,而是独立文件 `model-io-sess_subagent_agent_<uuid>.jsonl`(`querySource=subagent`),这是验证子会话的唯一入口。实测 designer 子会话:`tools` 白名单生效(6 个,非主会话的 61 个),system prompt 第二块就是 `agents/designer.md` 正文;`RespondToCoordinator` 由宿主自动注入给每个子智能体(即使没写进白名单)。
 - **ZCode 没有 Grep/Glob 工具**:主会话 61 个工具里既无 `Grep` 也无 `Glob`(检索靠 `Read` + Bash `grep`/`find`)。agent frontmatter 写这两个名字会被静默忽略;6 份 agent 定义与协议的 File Operations Rules 已统一改写为「Read + Bash grep/find」措辞,不再出现裸 Glob/Grep 指令。
@@ -75,7 +75,7 @@
 
 CLI 清单只能证明「插件被加载」,证明不了 hook 真的跑过。真机证据在宿主自己的记录里:
 
-- `~/.zcode/cli/rollout/model-io-sess_<id>.jsonl`:每行一次模型请求;`messagesKind=full` 且 `messageOffset=0` 的那条含完整上下文,主会话 `request.messages[3].content` 里能看到 `# oh-my-zcode Orchestrator Protocol` 与 `</Communication>` 结尾,即 SessionStart 注入成功。注意 `messagesKind=tail` 的行只是尾部切片,里面没有协议属正常,不代表注入失败。子智能体请求另存为 `model-io-sess_subagent_agent_<uuid>.jsonl`(`querySource=subagent`),主会话文件里找不到子会话属正常。
+- `~/.zcode/cli/rollout/model-io-sess_<id>.jsonl`:每行一次模型请求;`messagesKind=full` 且 `messageOffset=0` 的那条含完整上下文,主会话 `request.messages[3].content` 里能看到 `# oh-my-zcode Orchestrator Protocol` 与 `</Communication>` 结尾,即 SessionStart 注入成功。注意 `messagesKind=tail` 的行只是尾部切片,里面没有协议属正常,不代表注入失败。子智能体请求另存为 `model-io-sess_subagent_agent_<uuid>.jsonl`(`querySource=subagent`),主会话文件里找不到子会话属正常。另一条取证通道是 `~/.zcode/cli/db/db.sqlite` 的 `message`/`part` 表:0.1.7 重装重启后的新会话在 rollout 目录里暂时没有文件(可能在会话结束或宿主退出时才落盘),但模型请求已入库,`part.data` 里含 `# oh-my-zcode Orchestrator Protocol` 的那条即注入内容,可直接与协议文件做 SHA256 比对。查库前先把数据库复制到临时目录并用只读连接打开,避免干扰运行中的宿主。
 - `~/.zcode/cli/log/zcode-<date>.jsonl`:查 `bootstrap.app.startup.plugins.completed` 的 `hookCount`/`enabledPluginCount`,核对插件是否进入启动清单(不含逐次 hook 运行记录)。
 - 无头复跑(可选):`node <zcode.cjs> -p '<prompt>'`。CLI 只在入口文件所在目录找内置 provider:`<入口目录>/provider/zcode-builtin.json` 或向上五级的 `config/provider/zcode-builtin.json`(本机即 `D:\config\provider\...`),缺失直接报「无法定位 CLI ZCode Built-in Provider Config」。没有该文件时不要为此改安装目录,用上面的 rollout 取证即可。
 
@@ -98,7 +98,7 @@ cd oh-my-zcode
 $env:ZCODE_PLUGIN_ROOT = (Get-Location).Path
 '{"agent_type":"fixer"}' | node hooks/inject-orchestrator.mjs   # 应无输出
 $out = '{"session_id":"t"}' | node hooks/inject-orchestrator.mjs
-[Text.Encoding]::UTF8.GetByteCount($out)                        # 实测 18798(协议文件 18314 字节 / 190 行)
+[Text.Encoding]::UTF8.GetByteCount($out)                        # 输出是 JSON 包装(含 hookSpecificOutput),总长必然大于协议本体;协议本体 18376 字节 / 190 行,权威值看 --selftest;pwsh 管道按本地代码页重编码,字节数有偏差
 ```
 
 自诊断：`node hooks/inject-orchestrator.mjs --selftest` 打印插件根、协议路径与字节数、剩余额度、子智能体过滤矩阵(exit 0 正常 / 1 协议文件缺失)。
