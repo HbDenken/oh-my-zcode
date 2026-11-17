@@ -7,8 +7,7 @@
           {
             "type": "process",
             "command": "node",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/inject-orchestrator.mjs"],
-            "timeoutMs": 5000
+            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/inject-orchestrator.mjs"]
           }
         ]
       }

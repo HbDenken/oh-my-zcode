@@ -11,7 +11,7 @@ ZCode 插件市场仓库，包含 **oh-my-zcode** —— 多智能体编排插�
 | `marketplace.json` | ZCode 插件市场清单 |
 | `oh-my-zcode/` | 插件本体：agents / commands / hooks / skills / MCP 配置 |
 
-> 本仓库是插件**源仓库**,自身不提交 `.oh-my-zcode/` 忽略规则。该目录的忽略规则由插件在使用方仓库运行时按需写入(见 `skills/clonedeps`、`skills/deepwork`、`skills/worktrees`、`commands/loop` 的 loop-history、`commands/interview` 的 `.oh-my-zcode/interview/` 产物)。
+> 本仓库是插件**源仓库**。`.oh-my-zcode/` 已在本仓库 `.gitignore` 中忽略,防止自测产生的运行产物被误提交;使用方仓库的忽略规则仍由插件运行时按需写入(见 `skills/clonedeps`、`skills/deepwork`、`skills/worktrees`、`commands/loop` 的 loop-history、`commands/interview` 的 `.oh-my-zcode/interview/` 产物)。
 
 ## 安装
 

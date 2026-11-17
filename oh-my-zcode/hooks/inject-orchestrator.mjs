@@ -26,6 +26,9 @@ const SUBAGENT_PREFIX = 'zcode-';
 // 还是报错未实测，所以不自行截断协议——截断会造出半条规则，比不注入更糟。
 const INJECT_LIMIT_BYTES = 32768;
 const STDIN_TIMEOUT_MS = 800;
+// SessionStart payload 只有几 KB。上限只防宿主行为变化造成无界缓冲；超限截断后
+// JSON.parse 失败会走「按主 Agent 注入」的安全方向，不会被误判成子会话。
+const STDIN_MAX_BYTES = 65536;
 
 // 插件根优先按本文件位置推导，不依赖宿主是否展开 hooks.json 里的变量。
 const MODULE_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -35,7 +38,9 @@ const protocolPath = (root) => join(root, 'hooks', 'orchestrator-protocol.md');
 function resolveRoot() {
   if (existsSync(protocolPath(MODULE_ROOT))) return MODULE_ROOT;
   const fromEnv = (process.env.ZCODE_PLUGIN_ROOT ?? '').trim();
-  return fromEnv || MODULE_ROOT;
+  // env 兜底也要校验协议真实存在，避免返回一个读不到文件的根。
+  if (fromEnv && existsSync(protocolPath(fromEnv))) return fromEnv;
+  return MODULE_ROOT;
 }
 
 function message(error) {
@@ -53,6 +58,8 @@ function emit(additionalContext) {
   process.exitCode = 0;
 }
 
+// hook 恒以 0 退出：失败经 fail() 转成可见告警，让会话照常启动。
+// 非零退出在宿主端的语义未实测，可能被当作启动失败，风险大于收益。
 function fail(reason) {
   emit(`[oh-my-zcode] 编排协议注入失败：${reason}。本次会话按无协议运行。`);
 }
@@ -78,6 +85,7 @@ function readStdin() {
     }, STDIN_TIMEOUT_MS);
 
     process.stdin.on('data', (chunk) => {
+      if (Buffer.byteLength(input, 'utf8') >= STDIN_MAX_BYTES) return;
       input += chunk;
     });
     process.stdin.on('end', finish);
