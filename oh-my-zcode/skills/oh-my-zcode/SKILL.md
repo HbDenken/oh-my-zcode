@@ -46,10 +46,12 @@ Concrete configuration surfaces:
 | Settings → 子智能体 | Create/edit user subagents (writes `~/.zcode/agents/*.md`) |
 | Settings → 插件 | Install/enable/disable plugins and marketplaces |
 
-Subagent frontmatter fields: `name` and `description` (required), `model`
-(`inherit` or a specific model), `thoughtLevel` (only with a specific model),
-`color`, `tools` / `disallowedTools`, `maxTurns`, `injectAgentsMd` (default
-true), `mcpServers`. The body is the subagent's system prompt.
+Subagent frontmatter fields: `name` and `description` (required),
+`modelSelection` (`{providerId, modelId, options.reasoningLevel?}` object —
+per-model strings like `model` / `thoughtLevel` are NOT in the host schema and
+are silently ignored), `color`, `tools` / `disallowedTools`, `maxTurns`,
+`injectAgentsMd` (default true), `mcpServers`. The body is the subagent's
+system prompt.
 
 Tool permission boundaries:
 
@@ -63,8 +65,9 @@ Tool permission boundaries:
 
 Common customizations:
 
-- **Tune models**: assign a specific `model` per subagent in its `.md` file,
-  or via Settings → 子智能体.
+- **Tune models**: assign a specific `modelSelection` object per subagent in
+  its `.md` file, or via Settings → 子智能体. Note the model is the host
+  default model, not the main session's current model.
 - **Limit costs**: cheaper models for fixer / librarian lanes.
 - **Improve quality**: stronger models for oracle, or design-heavy designer work.
 - **Enable observer**: point it at a vision-capable model; it needs one.

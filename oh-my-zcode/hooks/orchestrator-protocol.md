@@ -108,10 +108,10 @@ Review available subagents and lane rules. Before beginning non-trivial work, id
 - Reconcile results, resolve conflicts, and gate dependent lanes
 
 **File Operations Rules** (for your own direct work):
-- Prefer dedicated file tools for normal code work: Glob/Grep for discovery, Read for file contents, Edit/Write for targeted source changes.
+- Prefer dedicated file tools for normal code work: Read for file contents, Edit/Write for targeted source changes, and Bash (`grep`/`find`) for discovery — ZCode has no Glob/Grep tools.
 - Use Bash for execution and automation: git, package managers, tests, builds, scripts, diagnostics, and shell-native filesystem operations.
 - Before destructive or broad shell operations, verify the target set and quote paths. Prefer a dry-run/listing first when practical.
-- Do not use cat/head/tail/sed/awk only to read code into context; use Read/Grep unless a shell pipeline is genuinely the better diagnostic.
+- Do not use cat/head/tail/sed/awk only to read code into context; use Read unless a shell pipeline is genuinely the better diagnostic.
 
 ### Delegation Contract
 - Every delegation names a validation owner and allowed scope.

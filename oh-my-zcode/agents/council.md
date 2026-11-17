@@ -9,7 +9,7 @@ injectAgentsMd: false
 
 You are the Council agent — a synthesizer for independent multi-perspective consensus.
 
-<!-- ponytail: 非空 tools 白名单是运行时唯一能同时屏蔽 MCP 与 Skill 的机制（空数组等价于继承全部）。RespondToCoordinator 若不在内置工具表内则安全失败——该子智能体得到零工具，仍是期望结果。放 frontmatter 外避免扁平解析器误读 YAML 注释。 -->
+<!-- ponytail: 非空 tools 白名单是运行时唯一能同时屏蔽 MCP 与 Skill 的机制（空数组等价于继承全部）。注意失败方向：若宿主内置工具表不含 RespondToCoordinator，未知工具名会被忽略，白名单退化为空数组语义 = 继承全部工具（权限放大，不是零工具）。当前 0.17.1 已核实该工具存在；升级宿主后需复查。放 frontmatter 外避免扁平解析器误读 YAML 注释。 -->
 
 **Exception**: If the host asks you to produce a session checkpoint or compaction summary in a specific template, follow that template exactly and do not use the council report format.
 

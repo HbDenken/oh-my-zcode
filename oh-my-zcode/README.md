@@ -31,22 +31,28 @@
 3. 在 **个人** 分段找到 oh-my-zcode，点 **安装**
 4. **新建会话** 生效（子智能体/hook 定义不热更新）
 
-## 模型覆盖
+## 模型
 
-插件子智能体默认 `model: inherit`（跟随主 Agent 当前模型）。要为某个子智能体指定模型：
+子智能体模型 = 宿主默认模型（不跟随主 Agent 当前模型，ZCode 0.17.1 源码 schema 实证：agent frontmatter 的模型字段是 `modelSelection: {providerId, modelId, options.reasoningLevel?}`，字符串形式的 `model` / `thoughtLevel` 不在 schema 内、会被静默忽略——插件定义里不写它，写了也无效）。
+
+要为某个子智能体指定模型：
 
 1. 把 `agents/<name>.md` 复制到 `~/.zcode/agents/<name>.md`
-2. 修改 frontmatter 的 `model` 字段（或通过 设置 → 子智能体 编辑）
+2. 在 frontmatter 加 `modelSelection` 对象（或通过 设置 → 子智能体 编辑）
 3. 新建会话生效
-
-例：让 oracle 用更强模型、fixer 用便宜模型：
 
 ```yaml
 ---
 name: oracle
-model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
+modelSelection:
+  providerId: <provider 标识>   # 如 zcode-builtin / magpie，见 /model list
+  modelId: <model 标识>         # 如 glm-5.3
+  # options:
+  #   reasoningLevel: high     # 可选，需模型支持
 ---
 ```
+
+具体 `providerId`/`modelId` 取值以 设置 → 模型 或 `/model list` 显示为准。
 
 ## 与 OpenCode 版的功能差异
 
@@ -55,7 +61,7 @@ model: glm-5.3          # 或其它具体模型；thoughtLevel 需模型支持
 - 后台任务：ZCode 原生后台子智能体跑完自动回灌，不需要看板与唤醒调度器；取消用 `TaskStop`，插话/续跑用 `SendMessage`。
 - 交互：`wait_for_user` 改为结束回合等待；提问用 `AskUserQuestion`。
 - 能力缺口：无动态 councillor 席位、无 interview dashboard、无 smartfetch；codemap 改用内置仓库 Wiki。
-- council：插件 councillor 是 `model: inherit`，不做用户级模型覆盖时是「多视角」而非「多模型」。
+- council：插件 councillor 一律用宿主默认模型，不做用户级 `modelSelection` 覆盖时是「多视角」而非「多模型」。
 - worktree：Desktop 用原生 worktree 任务；CLI 无 worktree 工具，按 `skills/worktrees` 的路径约定回退。
 - 设计系统：接入官方 `design` 插件，`design-lint.mjs` 退出码 1/2 不得当通过。
 
