@@ -11,10 +11,9 @@
 | Explore | 快速代码侦察（只读） | ZCode 内置 |
 | fixer | 有界执行者：接完整规格实现代码 | 本插件 |
 | designer | UI/UX 专家：设计+实现用户界面；HTML 设计稿/原型/deck 走官方 `design` 技能 | 本插件 |
-| librarian | 外部知识研究：官方文档、库调研 | 本插件 |
+| librarian | 外部知识研究：官方文档、库调研、GitHub 示例（WebFetch/WebSearch/context7/gh_grep）；本地代码扫描归 Explore | 本插件 |
 | oracle | 战略顾问/终极调试：架构决策、疑难调试、方案权衡、代码审查、简化 | 本插件 |
 | observer | 视觉分析：图片/PDF/图表 | 本插件（需视觉模型） |
-| council | 多模型共识合成器（零工具） | 本插件 |
 
 配套组件：
 
@@ -60,8 +59,8 @@ modelSelection:
 
 - 后台任务：ZCode 原生后台子智能体跑完自动回灌，不需要看板与唤醒调度器；取消用 `TaskStop`，插话/续跑用 `SendMessage`。
 - 交互：`wait_for_user` 改为结束回合等待；提问用 `AskUserQuestion`。
-- 能力缺口：无动态 councillor 席位、无 interview dashboard、无 smartfetch；codemap 改用内置仓库 Wiki。
-- council：插件 councillor 一律用宿主默认模型，不做用户级 `modelSelection` 覆盖时是「多视角」而非「多模型」。
+- 能力缺口：无 interview dashboard、无 smartfetch；codemap 改用内置仓库 Wiki。
+- council：未移植。上游的「动态席位 + 零工具合成器」在主 Agent 自己并行派车道再对账的等效流程下没有增量价值，且本机历史里零调用；高风险的独立复核改写为协议里的 Independent Corroboration 一节。
 - worktree：Desktop 用原生 worktree 任务；CLI 无 worktree 工具，按 `skills/worktrees` 的路径约定回退。
 - 设计系统：接入官方 `design` 插件，`design-lint.mjs` 退出码 1/2 不得当通过。
 

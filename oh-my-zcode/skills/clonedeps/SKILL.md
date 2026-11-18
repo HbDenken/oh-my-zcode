@@ -10,8 +10,9 @@ locally readable to ZCode.
 
 This is a workflow skill, not a command wrapper. Do not use a helper script for
 dependency detection, ref validation, cloning, status, or cleanup. The
-orchestrator and `librarian` do the repo-specific thinking; the orchestrator
-performs the approved filesystem/git operations directly.
+orchestrator (with Explore) reads the local repo and decides what is worth
+cloning; `librarian` resolves those dependencies to external source repos and
+refs; the orchestrator performs the approved filesystem/git operations directly.
 
 ## Workflow
 
@@ -21,29 +22,32 @@ First check whether `.oh-my-zcode/clonedeps.json` exists.
 
 If it exists:
 
-1. Read it before asking librarian for a new plan.
+1. Read it before planning a new round of clones.
 2. Check whether each listed `path` exists under `.oh-my-zcode/clonedeps/repos/`.
 3. Reuse existing cloned repos when they already satisfy the user's task.
-4. Only ask librarian for new recommendations if the existing manifest is
+4. Only plan new clones if the existing manifest is
    missing, stale, or insufficient for the current task.
 
 Do not rescan/re-plan from scratch when the manifest already has useful entries.
 
-### Step 2: Ask Librarian for the Clone Plan
+### Step 2: Build the Dependency List, Then Resolve Sources
 
-Delegate dependency discovery and source resolution to `librarian`.
+Local discovery is not librarian's lane. Read the manifests and imports
+yourself, or dispatch Explore, and produce the actual dependency list: what the
+project does, its architecture, its integration points, and which external
+libraries it depends on in practice.
 
-Use this prompt:
+Then delegate **source resolution only** (official repo, ref, package path) to
+`librarian`. Use this prompt:
 
 ```md
-Understand this project first, then recommend remote source repos that would
-help a developer work on it.
+Resolve external source repositories for the dependencies of the current
+project. Do not read or scan the local repo — the list below is your input and
+it already covers what the project does, its architecture, its integration
+points, and the libraries it uses.
 
-Read enough of the current repo to understand:
-- what the project does
-- its main architecture
-- the important integration points
-- what external systems or libraries it depends on in practice
+Dependencies:
+- <name> <version or range> — how the project uses it
 
 Think like a developer trying to debug or extend this project.
 
@@ -57,13 +61,12 @@ current repo alone.
 For each recommendation, include:
 - repo name
 - repo URL
-- suggested ref/tag/commit if known
+- suggested ref/tag/commit, verified where possible
 - why cloning this source would help
 - when it would be useful
 - caveats
 
 Also include:
-- current-repo files/folders to inspect first
 - repos/dependencies you considered but would not clone
 
 Keep it small. Prefer 0–3 strong recommendations over 5 weak ones. If nothing
@@ -73,7 +76,7 @@ clearly needs cloning, say so.
 Librarian should return a small plan with:
 
 - dependency name;
-- current version/range if discoverable;
+- **current version/range from the input list;
 - official source repository URL;
 - tag/commit/ref to check out;
 - package subdirectory if the source is a monorepo;

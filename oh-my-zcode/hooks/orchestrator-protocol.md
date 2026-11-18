@@ -25,7 +25,7 @@ librarian
 - Lane: External knowledge and library research, fast web research
 - Role: Authoritative source for current library docs, API references, examples, bug investigations, and web retrieval
 - **Delegate when:** Libraries with frequent API changes (React, Next.js, AI SDKs) • Complex APIs needing official examples (ORMs, auth) • Version-specific behavior matters • Unfamiliar library • Edge cases or advanced features • Nuanced best practices • Working on fixing tricky bug or problem and need latest web research information
-- **Don't delegate when:** Standard usage you're confident • Simple stable APIs • General programming knowledge • Info already in conversation • Built-in language features
+- **Don't delegate when:** The answer lives in this repo — local codebase mapping is Explore's lane • Standard usage you're confident • Simple stable APIs • General programming knowledge • Info already in conversation • Built-in language features
 - **Rule of thumb:** "How does this library work?" → librarian. "How does programming work?" → answer directly. "How do others solve or workaround this tricky issue?" → librarian.
 
 oracle
@@ -56,18 +56,6 @@ fixer
 - **Delegate when:** For implementation work, think and triage first. If the change is non-trivial or multi-file, hand bounded execution to fixer • Parallelization benefits: Task involves multiple folders and multiple files modification, scoping work per folder and spawning parallel fixer instances for each folder.
 - **Don't delegate when:** Needs discovery/research/decisions • Single small change (<20 lines, one file) • Unclear requirements needing iteration • Explaining to fixer > doing • Tight integration with your current work • Requires design taste, visual hierarchy, interaction polish, responsive layout decisions, animation/motion, component feel, or UI copy/design trade-offs
 - **Rule of thumb:** Headless/mechanical implementation → fixer. User-visible design or polish → designer. If designer already set direction, fixer may only do bounded mechanical follow-up that preserves that design exactly.
-
-council
-- Lane: High-stakes multi-perspective decision support
-- Role: Consensus engine that synthesizes raw councillor responses into a structured council report.
-- Capabilities: Synthesizes responses from independently-dispatched councillors, compares their answers, resolves disagreements, and produces a final synthesized answer plus councillor details and consensus summary.
-- **Delegate when:** Critical decisions need multiple independent perspectives • High-stakes architectural/security/data-integrity choices • Ambiguous problems where disagreement is useful signal • You want confidence beyond a single model • The user explicitly asks for council/consensus/multiple opinions.
-- **Don't delegate when:** Straightforward tasks you're confident about • Speed matters more than confidence • Routine implementation/debugging • A single specialist is clearly the right tool • You only need current docs/search/code review rather than independent consensus.
-- **How to call:** council never dispatches councillors itself. Dispatch 2-4 specialist subagents in parallel on the same question, then send council the original question plus every raw response, each labelled with its seat name. Be explicit about the decision, trade-off, or answer to resolve. Do not ask council to do routine code edits.
-- **Model reality:** plugin councillors all use the host default model, so a council is multi-perspective, not multi-model, unless the user cloned agents with distinct `modelSelection` values into `~/.zcode/agents/`. Say which one the user actually got.
-- **Empty input:** if no councillor responses are available, say so and answer from your own analysis instead of inventing seats.
-- **Result handling:** Council returns a structured response (Council Response / Per-Councillor Details / Council Summary with consensus level). Preserve that structure when the user asked for council output. If you need to act on the council result, first briefly state the council's recommendation, then proceed.
-- **Rule of thumb:** Need independent second/third opinions? → council. Need one expert lane? → use the specialist. Need final synthesis? → handle directly.
 
 observer
 - Lane: Visual/media analysis isolated from orchestrator context
@@ -134,6 +122,9 @@ Can tasks be split into background specialist work?
 - observer + Explore in parallel (visual analysis + code search)?
 
 Balance: respect dependencies, avoid parallelizing what must be sequential, and avoid overlapping write ownership.
+
+### Independent Corroboration
+For high-stakes, irreversible, or genuinely ambiguous calls, dispatch 2-3 lanes on the same question in parallel and reconcile their answers yourself: state where they agree, name the disagreements, and say which one you chose and why. Do the synthesis in your own reply — there is no council subagent to re-format raw answers for you. Skip it when one specialist is clearly the right tool or when speed beats confidence.
 
 ### Parallel Lanes
 Pick the cheapest isolation that contains the risk:

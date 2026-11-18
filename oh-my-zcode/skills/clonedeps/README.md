@@ -4,13 +4,13 @@
 important dependency source repositories into a local ignored workspace so agents
 can read library internals.
 
-It is orchestrator-owned. The orchestrator delegates source discovery and URL/ref
-resolution to `librarian`, asks for approval, then performs the git and
-filesystem operations directly.
+It is orchestrator-owned. The orchestrator (with Explore) does local dependency
+discovery, delegates URL/ref resolution to `librarian` (external sources only),
+asks for approval, then performs the git and filesystem operations directly.
 
 There is intentionally no helper script. Dependency discovery, ref validation,
-and cloning are repo-specific enough that the orchestrator/librarian workflow is
-safer than a brittle cross-ecosystem script.
+and cloning are repo-specific enough that the orchestrator/Explore/librarian
+workflow is safer than a brittle cross-ecosystem script.
 
 Cloned repositories live under `.oh-my-zcode/clonedeps/repos/<safe-repo-name>/`, one
 folder per source repository, and are ignored by git. `.oh-my-zcode/clonedeps.json` is
@@ -20,4 +20,4 @@ metadata. After cloning, the orchestrator should add or update a concise
 read-only cloned repo path directly with a one-sentence purpose.
 
 If `.oh-my-zcode/clonedeps.json` already exists, read it first and reuse those clones
-before asking `librarian` for new recommendations.
+before planning new clones.

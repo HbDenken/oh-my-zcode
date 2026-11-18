@@ -10,7 +10,7 @@
 └── oh-my-zcode/                  # 插件根
     ├── .zcode-plugin/plugin.json # 清单：agents/skills/commands/hooks/mcpServers
     ├── .mcp.json                 # context7 + gh_grep（http 远程 MCP）
-    ├── agents/                   # 6 个自定义子智能体（fixer/designer/librarian/oracle/observer/council）
+    ├── agents/                   # 5 个自定义子智能体（fixer/designer/librarian/oracle/observer）
     ├── skills/                   # 8 个技能
     ├── commands/                 # loop/deepwork/reflect/interview
     └── hooks/
@@ -32,7 +32,7 @@
 | wait_for_user | 放弃；协议纪律替代 |
 | per-agent 权限塑形（permission map） | agents/*.md frontmatter `tools` 白名单（空数组＝继承全部，故零工具用非空白名单） |
 | skill 可见性过滤 | 子智能体自定义 `tools` 后失去全部技能；再用 frontmatter `skills: [name]` 显式放行（designer 已放行官方 `design` 技能） |
-| council 动态席位（council-agents.ts） | 静态 council 合成器；多模型意见由主 Agent 并行派任意子智能体取得后传给 council |
+| council 动态席位（council-agents.ts） | 不移植。合成器零工具、不派席位，只是把主 Agent 已经拿到的文本重排一遍；其真实价值（多视角并行）由主 Agent 直接派车道 + 协议 Independent Corroboration 一节承担。本机历史 0 次调用（0.1.8 决策） |
 | /loop /deepwork /reflect /interview 运行时命令 hook | commands/*.md（$ARGUMENTS 模板，无运行时 handler）。其中 /loop 为新增而非移植：上游明确不打包 loop harness |
 | interview Web dashboard/HTTP server/事件监听 | 纯对话式：每轮 Write 更新 `.oh-my-zcode/interview/<title>.md` |
 | reflect SQLite 会话考古 | ZCode 日志（`~/.zcode/cli/log/zcode-<date>.jsonl`）+ 当前会话 |
@@ -45,7 +45,7 @@
 
 ## 改写规则（从 src/ 移植内容时统一执行）
 
-- `@explorer` → `Explore 子智能体`；`@fixer/@designer/@librarian/@oracle/@observer/@council` → 去 @ 同名子智能体
+- `@explorer` → `Explore 子智能体`；`@fixer/@designer/@librarian/@oracle/@observer` → 去 @ 同名子智能体
 - `task(...)` → `Agent(run_in_background:true, subagent_type:...)`；`task_result/task_status` → 后台完成通知
 - `wait_for_user` 段落删除或改为“结束回合等待”；`task_message` / `task_revive` 改为 `SendMessage`
 - `OpenCode` → `ZCode`；`oh-my-opencode-slim` → `oh-my-zcode`
@@ -58,18 +58,16 @@
 - **Worktree**：Desktop 原生（`EnterWorktree`/`ExitWorktree`、`worktreeCwd` 能力协商、`worktree_created` 时间线、`fork-to-worktree`、任务组）；托管目录在数据目录的 `.zcode/worktrees/<4位hex>/<name>`，位于仓库外。CLI 0.17.1 无 worktree 工具，且 `Agent` 无 cwd 参数，子智能体不会进入车道。
 - **Design**：官方插件 `design@zcode-plugins-official`（0.7.2）自带 `design-system/<name>.md` 格式、`import-design-system.mjs`、`design-lint.mjs`。lint 退出码：0 通过、1 有违规、2 页面或系统文件读不了（不可当通过）。
 - **子智能体技能**：`tools` 白名单会移除全部技能；`skills: [name]` 是唯一放行方式。真机已验:designer 子会话同时拿到 `Read/Write/Edit/Bash/Skill` 与 `skills: [design]` 放行(技能通过 `Skill` 工具加载)。
-- **hook 输出上限**:SessionStart 注入上限 32768 字节(宿主默认 `hooks:{maxOutputBytes:32768, timeoutMs:60000}`;插件 hooks.json 的单个 hook 条目无法覆盖,只有 source 级配置能改)。当前协议 18376 字节(约 18KB),余量约 14392 字节。`inject-orchestrator.mjs` 不做截断,超限时向 stderr 报警;注入失败时改为输出一行可见告警到 `additionalContext`(stderr 是否展示给用户未实测)。**真机已核**(0.1.7 时点,协议 18376 字节):新会话注入块里的协议段 18376 字节,与 `hooks/orchestrator-protocol.md` 逐字节一致(SHA256 相同),无截断、无告警前缀。注意宿主会把同一 SessionStart 的多个 hook 输出合并成一条 `SessionStart hook additional context: ` 文本(本插件协议前还有别家 hook 的 `#1`/`#2` 段),注入块总长因此大于协议本体(本机 18898 字节),不要用「总长 = 文件字节数」做断言,要比就比从 `# oh-my-zcode Orchestrator Protocol` 起的协议段。历史取证(0.1.6 时点,协议 18314 字节)当时是单 hook 无包装的 18301 字节 + 13 字节尾部空白。
+- **hook 输出上限**:SessionStart 注入上限 32768 字节(宿主默认 `hooks:{maxOutputBytes:32768, timeoutMs:60000}`;插件 hooks.json 的单个 hook 条目无法覆盖,只有 source 级配置能改)。当前协议 16718 字节(约 16KB;`--selftest` 读的是工作区文件,行尾 CRLF;LF 归一化后 16537 字节),余量约 16050 字节。`inject-orchestrator.mjs` 不做截断,超限时向 stderr 报警;注入失败时改为输出一行可见告警到 `additionalContext`(stderr 是否展示给用户未实测)。**真机已核**(0.1.7 时点,协议 18376 字节):新会话注入块里的协议段 18376 字节,与 `hooks/orchestrator-protocol.md` 逐字节一致(SHA256 相同),无截断、无告警前缀。注意宿主会把同一 SessionStart 的多个 hook 输出合并成一条 `SessionStart hook additional context: ` 文本(本插件协议前还有别家 hook 的 `#1`/`#2` 段),注入块总长因此大于协议本体(本机 18898 字节),不要用「总长 = 文件字节数」做断言,要比就比从 `# oh-my-zcode Orchestrator Protocol` 起的协议段。历史取证(0.1.6 时点,协议 18314 字节)当时是单 hook 无包装的 18301 字节 + 13 字节尾部空白。0.1.8 删除 council 段后协议为 16718 字节(`--selftest` 实测;本地直跑 hook,`additionalContext` 与文件 SHA256 一致 `dbaa6efe…`),真机新会话注入**尚未复跑**。
 - **hook 身份过滤**:SessionStart 对子智能体会话同样触发。宿主把会话 `agentName` 原样作为 `agent_type` 传入(0.17.1 源码 `agent_type: e.agentName`)。本地 DB `model_usage.agent` 实证(5000+ 样本):主会话恒为 `zcode-agent`(main_turn/compact/session_title 一致),子会话一律 `zcode-<类型>`——`zcode-Explore`、`zcode-oracle`、`zcode-oh-my-zcode:designer`,workflow/expert 子会话为 `zcode-workflow`/`zcode-expert`,第三方插件的子智能体同样带该前缀。`inject-orchestrator.mjs` 因此用开放规则「`zcode-` 前缀且非 `zcode-agent` ⇒ 子会话」过滤,覆盖未知插件的子智能体;裸名/空值/非 JSON 按主 Agent 注入(宿主从不发送裸名,未知时注入是安全方向)。已知边界:用户自定义名为 `agent` 的子智能体会话名同为 `zcode-agent`,会被注入协议(仅多读一段文本,不影响其身份)。本地矩阵 10/10 通过;真机已验:designer 子会话(独立 rollout `model-io-sess_subagent_agent_*.jsonl`,`querySource=subagent`)的 system prompt 里没有协议文本。
 - **子智能体加载与工具面(真机已验)**:插件 `agents/` 能被 ZCode 加载,但**要重启 ZCode 才进 agent 列表**(只跑 `plugins update` 不够,启动时缓存 agent 注册表)。子智能体请求不写主会话 rollout,而是独立文件 `model-io-sess_subagent_agent_<uuid>.jsonl`(`querySource=subagent`),这是验证子会话的唯一入口。实测 designer 子会话:`tools` 白名单生效(6 个,非主会话的 61 个),system prompt 第二块就是 `agents/designer.md` 正文;`RespondToCoordinator` 由宿主自动注入给每个子智能体(即使没写进白名单)。
-- **ZCode 没有 Grep/Glob 工具**:主会话 61 个工具里既无 `Grep` 也无 `Glob`(检索靠 `Read` + Bash `grep`/`find`)。agent frontmatter 写这两个名字会被静默忽略;6 份 agent 定义与协议的 File Operations Rules 已统一改写为「Read + Bash grep/find」措辞,不再出现裸 Glob/Grep 指令。
-- **`model: inherit` 无效**:宿主 agent schema 的模型字段是 `modelSelection: {providerId, modelId}` 对象,字符串 `inherit` 被忽略;实测 designer 子会话跑 `auto/glm-5.3-flash`,与主会话模型不同。已从 6 份 agent 定义删除,子智能体统一用宿主默认模型。
+- **ZCode 主会话没有 Grep/Glob 工具**:主会话 61 个工具里既无 `Grep` 也无 `Glob`(检索靠 `Read` + Bash `grep`/`find`)。但「写进 agent frontmatter 会被静默忽略」这句是错的:10-30 版 `agents/librarian.md` 的白名单里明确写着 `Grep`/`Glob`,11-04 的 librarian 会话确实调用了 7 次 `Grep`、2 次 `Glob`。当前实现改为不依赖这两个名字——5 份 agent 定义与协议统一用「Read + Bash grep/find」措辞,不再出现裸 Glob/Grep 指令。待复核:0.17.1 bundle 里 explore toolset 的允许集含 `Glob`/`Grep`,与「主会话没有」的观察不一致,可能是 Desktop/CLI 构建差异,不影响上面的子智能体结论。
+- **`model: inherit` 无效**:宿主 agent schema 的模型字段是 `modelSelection: {providerId, modelId}` 对象,字符串 `inherit` 被忽略;实测 designer 子会话跑 `auto/glm-5.3-flash`,与主会话模型不同。已从 5 份 agent 定义删除,子智能体统一用宿主默认模型。
 - **agent 内联规则**:`File Operations Rules` 与协议重复是刻意的——ZCode 没有 include 机制,每个 agent 的 body 就是独立 system prompt。实际是 6 处、两种变体,改的时候按变体同步:
   - 可写变体(协议 + fixer + designer):`hooks/orchestrator-protocol.md`、`agents/fixer.md`、`agents/designer.md`(designer 措辞略有出入)
   - 只读变体(oracle / librarian / observer):三者其余一致;oracle 额外多一条 `Bash: diagnostics only` 条款(它有 Bash 白名单)
-  - `agents/council.md` 没有该块(它只有 `RespondToCoordinator`),改规则时显式跳过
 - **maxTurns 取舍**:只有 `fixer`(80) 与 `designer`(80) 设了上限,因为它们是反复改文件的执行车道;
-  oracle/librarian/observer/council 不设上限——单次分析型车道,靠 `tools` 白名单与提示词约束,不进入改文件循环。
-- **council 工具面(已核实)**:`RespondToCoordinator` 是 ZCode 内置工具,`tools: [RespondToCoordinator]` 因此只放行协调器回传通道,该子智能体没有文件/搜索/Bash 工具。注意插件 councillor 已无 `model: inherit`(该字段在 ZCode 无效),council 一律用宿主默认模型,是「多视角」而非「多模型」。
+  oracle/librarian/observer 不设上限——单次分析型车道,靠 `tools` 白名单与提示词约束,不进入改文件循环。
 
 ## 真机取证（ZCode 0.17.1 已跑）
 
@@ -89,21 +87,23 @@ cd oh-my-zcode
 echo '{"session_id":"t","hook_event_name":"SessionStart"}' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
 # 空 stdin → 容错
 echo '' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
-# 子智能体会话 → 应无输出
+# 子智能体会话 → 应无输出（宿主传的是带前缀的名字）
+echo '{"agent_type":"zcode-fixer"}' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
+# 裸名 → 按主 Agent 注入（安全兜底，不是 bug）
 echo '{"agent_type":"fixer"}' | ZCODE_PLUGIN_ROOT="$PWD" node hooks/inject-orchestrator.mjs
 ```
 
 ```powershell
 cd oh-my-zcode
 $env:ZCODE_PLUGIN_ROOT = (Get-Location).Path
-'{"agent_type":"fixer"}' | node hooks/inject-orchestrator.mjs   # 应无输出
+'{"agent_type":"zcode-fixer"}' | node hooks/inject-orchestrator.mjs   # 应无输出（裸名 fixer 会注入，属安全兜底）
 $out = '{"session_id":"t"}' | node hooks/inject-orchestrator.mjs
-[Text.Encoding]::UTF8.GetByteCount($out)                        # 输出是 JSON 包装(含 hookSpecificOutput),总长必然大于协议本体;协议本体 18376 字节 / 190 行,权威值看 --selftest;pwsh 管道按本地代码页重编码,字节数有偏差
+[Text.Encoding]::UTF8.GetByteCount($out)                        # 输出是 JSON 包装(含 hookSpecificOutput),总长必然大于协议本体;协议本体 16718 字节 / 181 行,权威值看 --selftest;pwsh 管道按本地代码页重编码,字节数有偏差
 ```
 
 自诊断：`node hooks/inject-orchestrator.mjs --selftest` 打印插件根、协议路径与字节数、剩余额度、子智能体过滤矩阵(exit 0 正常 / 1 协议文件缺失)。
 
-安装后验证：设置→插件→个人分段安装 → 详情页应列出 6 子智能体/8 技能/4 命令/2 MCP/1 hook → 新建会话后 / 面板出现命令与技能。注意:`plugins list` 报 `commands: 1`(对含 7 个命令的 zcode-site 同样报 1,疑为目录计数口径),命令数不要用它判断,以 `commands list` 为准。
+安装后验证：设置→插件→个人分段安装 → 详情页应列出 5 子智能体/8 技能/4 命令/2 MCP/1 hook → 新建会话后 / 面板出现命令与技能。注意:`plugins list` 报 `commands: 1`(对含 7 个命令的 zcode-site 同样报 1,疑为目录计数口径),命令数不要用它判断,以 `commands list` 为准。
 
 清单与技能发现（CLI 可跑，bash）：
 
