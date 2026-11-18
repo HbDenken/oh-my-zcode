@@ -37,6 +37,11 @@ yourself, or dispatch Explore, and produce the actual dependency list: what the
 project does, its architecture, its integration points, and which external
 libraries it depends on in practice.
 
+Keep that list short: prefer 3-5 core dependencies — user-mentioned ones plus
+central frameworks, SDKs, ORMs, runtime/plugin APIs, and build/runtime tools.
+Do not list tiny utilities, transitive dependencies, or dev-only tools unless
+they are directly relevant to the active task.
+
 Then delegate **source resolution only** (official repo, ref, package path) to
 `librarian`. Use this prompt:
 
@@ -62,6 +67,7 @@ For each recommendation, include:
 - repo name
 - repo URL
 - suggested ref/tag/commit, verified where possible
+- package subdirectory if the source is a monorepo
 - why cloning this source would help
 - when it would be useful
 - caveats
@@ -76,17 +82,12 @@ clearly needs cloning, say so.
 Librarian should return a small plan with:
 
 - dependency name;
-- **current version/range from the input list;
+- current version/range from the input list;
 - official source repository URL;
 - tag/commit/ref to check out;
 - package subdirectory if the source is a monorepo;
 - reason local source helps;
 - caveats such as huge repo, missing tag, or uncertain version mapping.
-
-Prefer at most 3-5 core dependencies. Include user-mentioned dependencies and
-central frameworks, SDKs, ORMs, runtime/plugin APIs, or build/runtime tools. Do
-not clone tiny utilities, transitive dependencies, or dev-only tools unless they
-are directly relevant to the active task.
 
 ### Step 3: Verify and Confirm the Plan
 
