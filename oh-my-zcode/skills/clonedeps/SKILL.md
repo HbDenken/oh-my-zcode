@@ -51,6 +51,9 @@ project. Do not read or scan the local repo — the list below is your input and
 it already covers what the project does, its architecture, its integration
 points, and the libraries it uses.
 
+Project:
+- <one sentence: what the project does, its architecture, its integration points>
+
 Dependencies:
 - <name> <version or range> — how the project uses it
 

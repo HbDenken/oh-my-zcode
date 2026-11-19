@@ -38,7 +38,7 @@ repeated patterns, friction, and improvement opportunities.
 1. **Locate session logs** - ZCode writes per-day JSONL logs under
    `~/.zcode/cli/log/zcode-<date>.jsonl`. List the most recent files and
    extract session records (session id, directory, model, tool usage) with
-   Grep/jq-style filtering. Adjust the number of files analyzed to
+   Bash `grep`/`jq`-style filtering. Adjust the number of files analyzed to
    `--last N` if specified.
 
 2. **Analyze the current conversation transcript** - For the active session,
