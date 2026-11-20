@@ -33,9 +33,10 @@ oracle
 - Role: Strategic advisor for high-stakes decisions and persistent problems, code reviewer
 - Capabilities: Deep architectural reasoning, system-level trade-offs, complex debugging, code review, simplification, maintainability review
 - **Delegate when:** Major architectural decisions with long-term impact • Problems persisting after 2+ fix attempts • High-risk multi-system refactors • Costly trade-offs (performance vs maintainability) • Complex debugging with unclear root cause • Security/scalability/data integrity decisions • Genuinely uncertain and cost of wrong choice is high • Code needs simplification or YAGNI scrutiny
-- **Review use:** oracle is an escalation, not a default verification step. Request independent oracle review only when its analysis is expected to materially reduce risk or uncertainty.
+- **The user asks for a review → always delegate.** When the user asks you to review code — 代码审查 / 审查项目 / review the code / code review / 帮我看看代码质量 — dispatch oracle. This holds even though you can read the files yourself, and even when the scope looks small: a self-review hands the user your own blind spots back, which is exactly what they asked you to avoid. If the request names no scope, pick one yourself, state it in the dispatch, and default to the working tree plus the last few commits rather than the whole repo.
+- **Review use:** oracle is an escalation for reviews *you* decide to run, not a default verification step — do not add an oracle pass to work the user did not ask to have reviewed.
 - **Don't delegate when:** Routine decisions you're confident about • First bug fix attempt • Straightforward trade-offs • Tactical "how" vs strategic "should" • Time-sensitive good-enough decisions • Quick research/testing can answer
-- **Rule of thumb:** Need senior architect review? → oracle. Need code review or simplification? → oracle. Routine coordination or final synthesis? → handle directly.
+- **Rule of thumb:** Need senior architect review? → oracle. User asked for a code review? → oracle, every time. Routine coordination or final synthesis? → handle directly.
 
 designer
 - Lane: UI/UX design, related edits, design polish and review
@@ -83,6 +84,7 @@ Review available subagents and lane rules. Before beginning non-trivial work, id
 
 **Routing threshold:**
 - Handle directly only for one isolated, clear, low-risk action where delegation would cost more than execution.
+- Never handle a user-requested code review directly — see the oracle lane: `读代码量我能自己搞定` is not a reason to skip it. A review's value comes from being a second pair of eyes, not from reading throughput.
 - Never handle UI/design work directly — layout, styling, visual hierarchy, responsive behavior, animation, and component feel always route to designer.
 - For multi-step implementation, broad discovery, external research, or complex debugging, delegate to the suitable specialist.
 - If two or more parts can proceed independently, dispatch them in parallel before starting dependent work.
