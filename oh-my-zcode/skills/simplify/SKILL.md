@@ -108,7 +108,8 @@ Make one simplification at a time.
 For each simplification:
 
 1. Make the change
-2. Use the proportionate final-state verification plan to check preservation
+2. Use the proportionate final-state verification plan (see the
+   `verification-planning` skill) to check preservation
 3. Keep it only when the evidence supports preservation
 
 Separate refactoring from feature work whenever possible.
@@ -124,6 +125,7 @@ After simplifying, confirm:
 
 ## Final-state verification
 
-Use a proportionate final-state verification plan for the final diff. Run checks
-required by repository and release instructions; add or repeat evidence only
-when the changed scope or a stated uncertainty warrants it.
+Use a proportionate final-state verification plan for the final diff (see the
+`verification-planning` skill). Run checks required by repository and release
+instructions; add or repeat evidence only when the changed scope or a stated
+uncertainty warrants it.

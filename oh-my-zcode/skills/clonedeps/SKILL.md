@@ -214,14 +214,16 @@ under `.oh-my-zcode/clonedeps/repos/` should be ignored.
 
 ### Step 7: Register Dependency Source in AGENTS.md
 
-After successful cloning, update the repository root `AGENTS.md` so future
-agents know why the dependency source exists and where to look.
+After successful cloning, propose a short `## Cloned Dependency Source` section
+for the repository root `AGENTS.md` so future agents know why the dependency
+source exists and where to look. Show the exact text and ask the user to confirm
+before writing — `AGENTS.md` is an instruction file, and editing it unasked is
+out of bounds.
 
-If `AGENTS.md` already has a `## Cloned Dependency Source` section, update that
-section. Otherwise append this section:
-
-Use this format and list the actual repos directly. Keep each item to one short
-sentence so future agents do not need an extra read just to know what is there:
+If `AGENTS.md` already has that section, propose an update to it rather than an
+append. Use this format and list the actual repos directly. Keep each item to
+one short sentence so future agents do not need an extra read just to know what
+is there:
 
 ```markdown
 ## Cloned Dependency Source

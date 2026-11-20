@@ -49,12 +49,16 @@ function message(error) {
 
 // 失败也要回一条可见上下文：hook 的 stderr 是否展示给用户未实测，
 // 只写 stderr 等于静默失效。
+function hookPayload(additionalContext) {
+  return JSON.stringify({
+    hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext },
+  });
+}
+
 function emit(additionalContext) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext },
-    }),
-  );
+  // 写完后主动退出：readStdin 的 800ms 超时只 resolve 不关进程，宿主若不关
+  // stdin，进程会一直挂到 hook 超时。回调里退出可保证 stdout 已刷出。
+  process.stdout.write(hookPayload(additionalContext), () => process.exit(0));
   process.exitCode = 0;
 }
 
@@ -113,6 +117,11 @@ function selftest() {
   const path = protocolPath(root);
   const exists = existsSync(path);
   const bytes = exists ? Buffer.byteLength(readFileSync(path, 'utf8'), 'utf8') : 0;
+  // 宿主限额作用于 stdout 的 JSON 包装（含 hookSpecificOutput 外壳），不是协议
+  // 本体；两者相差数百字节，按本体算余量会偏乐观。
+  const emittedBytes = exists
+    ? Buffer.byteLength(hookPayload(readFileSync(path, 'utf8')), 'utf8')
+    : 0;
   const probes = [
     ['主会话 main_turn', 'zcode-agent', false],
     ['内置 Explore 子会话（DB 实证）', 'zcode-Explore', true],
@@ -134,8 +143,9 @@ function selftest() {
         protocolPath: path,
         protocolExists: exists,
         protocolBytes: bytes,
+        emittedBytes,
         limitBytes: INJECT_LIMIT_BYTES,
-        headroomBytes: INJECT_LIMIT_BYTES - bytes,
+        headroomBytes: INJECT_LIMIT_BYTES - emittedBytes,
         subagentFilter: Object.fromEntries(
           probes.map(([label, probe, expected]) => [
             `${label} (${probe || '<空>'})`,
@@ -167,10 +177,10 @@ async function main() {
     return;
   }
 
-  const bytes = Buffer.byteLength(protocol, 'utf8');
+  const bytes = Buffer.byteLength(hookPayload(protocol), 'utf8');
   if (bytes > INJECT_LIMIT_BYTES) {
     process.stderr.write(
-      `[oh-my-zcode] protocol ${bytes}B exceeds ${INJECT_LIMIT_BYTES}B SessionStart limit; trim hooks/orchestrator-protocol.md\n`,
+      `[oh-my-zcode] injected payload ${bytes}B exceeds ${INJECT_LIMIT_BYTES}B SessionStart limit; trim hooks/orchestrator-protocol.md\n`,
     );
   }
 

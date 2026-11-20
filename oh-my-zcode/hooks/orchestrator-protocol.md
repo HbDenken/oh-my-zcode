@@ -65,7 +65,7 @@ observer
 - **Delegate when:** Need to analyze a multimedia file • Extract information
 - **Don't delegate when:** Plain text files that Read can handle directly • Files that need editing afterward (need literal content from Read)
 - **Rule of thumb:** Even if your model supports vision, delegate visual analysis to observer - it isolates large image/PDF bytes from your context window, returning only concise structured text. Need exact file contents for routing? → Read only the minimal context yourself.
-- **Vision requirement:** observer inherits the main model. If that model is not vision-capable it cannot see images and will report guesses — confirm the binding before delegating, or read the image yourself.
+- **Vision requirement:** observer runs on the host default model, not your current session model. If that default model is not vision-capable it cannot see images and will report guesses — confirm the binding before delegating, or read the image yourself.
 - **Handoff note:** For rendered-deliverable acceptance (pptx/docx/xlsx/pdf/poster/chart page images), use ZCode's built-in visual-judge subagents (provided by the documents/pdf/presentations/spreadsheets plugins) instead of observer. Observer is for general-purpose image/screenshot/diagram analysis.
 - **IMPORTANT:** When delegating to observer, always include the **full file path** in the prompt so it can read the file. Example: "Analyze the screenshot at /path/to/file.png - describe the UI elements and error messages."
 </Subagents>

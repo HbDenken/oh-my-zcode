@@ -60,6 +60,12 @@ Clarify the idea through short rounds of at most 2 questions at a time.
 When useful, each question may include 2 to 4 answer options and one suggested option.
 Be practical. Focus on the highest-ambiguity and highest-risk decisions first.
 
+Before writing the first spec file, keep interview artifacts out of git: append
+`.oh-my-zcode/interview/` to `.gitignore` if missing, and add `!.oh-my-zcode/`,
+`!.oh-my-zcode/interview/`, `!.oh-my-zcode/interview/**` to `.ignore` if missing.
+Never duplicate existing entries. The bare `!.oh-my-zcode/` line is required —
+without it the spec stays invisible to codebase search.
+
 After each round, update the specification document at `.oh-my-zcode/interview/<title>.md` with the Write tool so the user can review it at any time (keep the title stable once chosen).
 
 Ask the questions in your reply text (numbered, with options and a suggested option), and wait for the user's answers before the next round.

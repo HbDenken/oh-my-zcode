@@ -133,8 +133,11 @@ log activity.
   lane.
 
 Setup: before creating any deepwork file, ensure `.gitignore` contains
-`.oh-my-zcode/deepwork/` and `.ignore` contains `!.oh-my-zcode/deepwork/` plus
-`!.oh-my-zcode/deepwork/**`, adding only missing entries.
+`.oh-my-zcode/deepwork/` and `.ignore` contains `!.oh-my-zcode/`,
+`!.oh-my-zcode/deepwork/` plus `!.oh-my-zcode/deepwork/**`, adding only missing
+entries. The bare `!.oh-my-zcode/` line is required: gitignore semantics do not
+re-include a file under an excluded parent directory, so without it the progress
+file stays invisible to codebase search.
 
 ## Completion
 

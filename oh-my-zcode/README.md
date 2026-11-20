@@ -28,7 +28,7 @@
 1. 打开 ZCode → 设置 → 插件
 2. 点右上角 **创建 → 添加插件市场**，选择本仓库根目录（含 `marketplace.json`）
 3. 在 **个人** 分段找到 oh-my-zcode，点 **安装**
-4. **新建会话** 生效（子智能体/hook 定义不热更新）
+4. **新建会话** 生效。插件级子智能体（`agents/`）需**重启 ZCode** 才进 agent 列表（启动时缓存 agent 注册表，只跑 `plugins update` 不够）；hook 与已有定义的改动新会话即可生效。
 
 ## 模型
 
@@ -67,7 +67,7 @@ modelSelection:
 ## 已知限制
 
 - 插件子智能体在 设置 → 子智能体 中只读；覆盖/停用 = 复制到 `~/.zcode/agents/` 后修改
-- 子智能体不能再派子智能体（ZCode 运行时强制），编排只在主 Agent 层
+- 子智能体不能再派子智能体（宿主运行时行为未验证，按假设处理），编排只在主 Agent 层
 - 自定义 `tools` 白名单的子智能体会失去 MCP 工具和技能；需要技能时用 frontmatter `skills: [name]` 显式放行（designer 已放行 `design`）。librarian 已用全名接入 WebSearch 与 context7/gh_grep，其余 agents 按最小工具集设计
 - 动态 workflow 的 agent `isolation: "worktree"` 在 ZCode 未实现（运行时抛错），不要使用；worktree 并行只在 Desktop 原生任务里成立
 - `context7` MCP 免 key 可用（有速率限制）；如需 API key，直接在 `.mcp.json` 的 `headers` 里加 `Authorization` 即可（静态 headers 不受官方 auth 的保留头限制）

@@ -18,7 +18,7 @@ restart requirements.
 Use this skill when the user asks about or is likely to benefit from changes to:
 
 - subagent definitions (`~/.zcode/agents/*.md` or plugin-provided agents)
-- subagent models, thinking effort (`thoughtLevel`), or tool permissions
+- subagent models (`modelSelection`), reasoning level, or tool permissions
 - skills (`~/.zcode/skills/` or plugin skills)
 - slash commands (`~/.zcode/commands/` or plugin commands)
 - MCP servers (user-level config through ZCode settings, or plugin `.mcp.json`)
@@ -49,9 +49,10 @@ Concrete configuration surfaces:
 Subagent frontmatter fields: `name` and `description` (required),
 `modelSelection` (`{providerId, modelId, options.reasoningLevel?}` object —
 per-model strings like `model` / `thoughtLevel` are NOT in the host schema and
-are silently ignored), `color`, `tools` / `disallowedTools`, `maxTurns`,
-`injectAgentsMd` (default true), `mcpServers`. The body is the subagent's
-system prompt.
+are silently ignored), `color`, `tools` / `disallowedTools`, `skills` (list of
+skill names to allow through when a custom `tools` list is set — the only way to
+keep skills available to such a subagent), `maxTurns`, `injectAgentsMd` (default
+true), `mcpServers`. The body is the subagent's system prompt.
 
 Tool permission boundaries:
 

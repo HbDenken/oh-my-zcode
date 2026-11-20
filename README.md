@@ -11,7 +11,7 @@ ZCode 插件市场仓库，包含 **oh-my-zcode** —— 多智能体编排插�
 | `marketplace.json` | ZCode 插件市场清单 |
 | `oh-my-zcode/` | 插件本体：agents / commands / hooks / skills / MCP 配置 |
 
-> 本仓库是插件**源仓库**。`.oh-my-zcode/` 已在本仓库 `.gitignore` 中忽略,防止自测产生的运行产物被误提交;使用方仓库的忽略规则仍由插件运行时按需写入(见 `skills/clonedeps`、`skills/deepwork`、`skills/worktrees`、`commands/loop` 的 loop-history、`commands/interview` 的 `.oh-my-zcode/interview/` 产物)。
+> 本仓库是插件**源仓库**。`.oh-my-zcode/` 已在本仓库 `.gitignore` 中忽略,防止自测产生的运行产物被误提交;使用方仓库的忽略规则由插件运行时按需写入(见 `skills/clonedeps`、`skills/deepwork`、`commands/loop` 的 loop-history、`commands/interview` 的 interview 产物;`skills/worktrees` 在 Desktop 原生任务下由 ZCode 托管、不写忽略规则)。
 
 ## 安装
 
@@ -21,7 +21,7 @@ ZCode 插件市场仓库，包含 **oh-my-zcode** —— 多智能体编排插�
 2. 打开 ZCode → 设置 → 插件
 3. 点右上角 **创建 → 添加插件市场**，选择本仓库根目录（含 `marketplace.json`）
 4. 在 **个人** 分段找到 oh-my-zcode，点 **安装**
-5. **新建会话** 生效（子智能体/hook 定义不热更新）
+5. **新建会话** 生效。插件级子智能体（`agents/`）需**重启 ZCode** 才进 agent 列表（启动时缓存 agent 注册表，只跑 `plugins update` 不够）；hook 与已有定义的改动新会话即可生效。
 
 ## 插件详情
 
